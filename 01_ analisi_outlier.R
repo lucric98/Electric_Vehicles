@@ -22,13 +22,19 @@ diff2 <- setdiff(height_furgoni,pay_furgoni)
 
 ## ATTENZIONE: CI SONO DUE COSE DA TENERE IN CONSIDERAZIONE: HEIGHT CONSIDERA 5 PUNTI IN PIU', RISPETTO AL MAX PAYLOAD. IO DIREI CHE COMUNQUE QUESTI PUNTI POSSONO ESSERE CARATTERIZZATI COME FURGONI
 
-## SEATS >=5
-ind_seats <- which(Vehicles$Seats>5)
+## SEATS > 7
+ind_seats <- which(Vehicles$Seats>7)
 
 diff1 <- setdiff(ind_seats,height_furgoni)
 diff2 <- setdiff(height_furgoni,ind_seats)
-## ATTENZIONE: CI SONO ALCUNE MACCHINE A 7 POSTI CHE PERO' NON SONO FURGONI. LA CARATTERISTICA CHE SECONDO ME REALMENTE CARATTERIZZA UN FURGONE E' L'ALTEZZA (>1800)
-
+## ATTENZIONE: CI SONO ALCUNE MACCHINE A 7 POSTI CHE PERO' NON SONO FURGONI. cosa facciamo? le consideriamo furgoni?
+# [1] "https://ev-database.org/car/1522/Peugeot-e-Rifter-Standard-50-kWh"
+# [2] "https://ev-database.org/car/1546/Citroen-e-Berlingo-M-50-kWh"     
+# [3] "https://ev-database.org/car/1240/Mercedes-EQV-300-Long"           
+# [4] "https://ev-database.org/car/1651/Volkswagen-ID-Buzz-Pro"          
+# [5] "https://ev-database.org/car/1523/Peugeot-e-Rifter-Long-50-kWh"    
+# [6] "https://ev-database.org/car/1315/Mercedes-EQV-300-Extra-Long"     
+# [7] "https://ev-database.org/car/1547/Citroen-e-Berlingo-XL-50-kWh"
 
 ### OUTLIER ANALYSIS
 library(dplyr)
@@ -45,7 +51,7 @@ Vehicles$Available <- as.factor(Vehicles$Available)
 factors <- data.frame(Seats = Vehicles$Seats, Charge.Power = Vehicles$Charge.Power, Drive = Vehicles$Drive)
 
 Vehicles <- select_if(Vehicles, is.numeric)
-select(Vehicles, -c(id))
+Vehicles <- Vehicles %>% select(-c(id))
 
 ############################ UNIVARIATE BOXPLOT
 
@@ -244,13 +250,70 @@ data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = V
 pairs(data)
 bagplot.pairs(data)
 
+Vehicles <- Vehicles %>% mutate(factors) 
+#riaggiungo le variabili categoriche
+data <- data %>% mutate(factors)
 
-ev <- 
+library(GGally)
+ggpairs(data,
+        columns = 1:12,
+        aes(color = Drive, alpha = 0.5), 
+        upper = list(continuous = wrap("cor", size = 2.5)))
+ggpairs(data[,1:15],
+        aes(color = Drive, alpha = 0.5), 
+        lower = list(combo = "count"))
+
+########### HIERARCHICAL CLUSTERING
+data <- na.omit(data)
+library(mvtnorm)
+library(rgl)
+library(car)
+
+data.e <- daisy(data,metric = "gower")
+#data.m <- dist(data[,1:12],method="manhattan")
+
+#data.es <- hclust(data.e, method='single') 
+data.ea <- hclust(data.e, method='average') 
+data.ec <- hclust(data.e, method='complete')
+data.ew <- hclust(data.e, method='ward.D2')
+
+par(mfrow=c(1,3)) 
+#plot(data.es, main='gower-single', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+plot(data.ea, main='gower-average', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.ea, k=2)
+rect.hclust(data.ea, k=3)
+plot(data.ec, main='gower-complete', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.ec, k=2)
+rect.hclust(data.ec, k=3)
+rect.hclust(data.ec, k=5)
+plot(data.ew, main='gower-ward', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.ew, k=2)
+rect.hclust(data.ew, k=3)
+
+### ANALISI --> gower DISTANCE -> AVERAGE LINKAGE
+# in questo modo otteniamo la separazione furgoni vs non furgoni
+cluster.ea3 <- cutree(data.ea,k=2)
+plot(data, main = 'gower, Average linkage', col=cluster.ea3+1, pch=16, asp=1) 
+
+### ANALISI --> gower DISTANCE -> COMPLETE LINKAGE
+#cluster.ec2 <- cutree(data.ec,k=2)
+#plot(data, main = 'gower, Complete linkage', col=cluster.ec2+1, pch=16, asp=1) 
+# in questo modo otteniamo una netta separazione tra i vari tipi di trazione
+cluster.ec3 <- cutree(data.ec,k=3)
+plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
+
+# cluster.ec5 <- cutree(data.ec,k=5)
+# plot(data, main = 'gower, Complete linkage', col=cluster.ec5+1, pch=16, asp=1) 
+
+### ANALISI IL RISULTATO --> gower DISTANCE -> WARD LINKAGE
+cluster.ew2 <- cutree(data.ew,k=2)
+plot(data, main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, asp=1) 
+
+cluster.ew3 <- cutree(data.ew,k=3)
+plot(data, main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, asp=1)
 
 
-
-
-
-
-
+# =>>>>> secondo me il miglior risaultato si ottiene con il complete linkage, k=3
+cluster.ec3 <- cutree(data.ec,k=3)
+plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
 
