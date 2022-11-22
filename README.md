@@ -1,2 +1,4 @@
 # Electric_Vehicles
-nonparametric statistic project
+Nonparametric Statistic project
+
+PROJECT DESCRIPTION
