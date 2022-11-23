@@ -317,3 +317,15 @@ plot(data, main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, asp=1)
 cluster.ec3 <- cutree(data.ec,k=3)
 plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
 
+## buona separazione furgoni vs non furgoni
+par(mfrow=c(1,2))
+plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16, asp=1) 
+plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16, asp=1) 
+## buona separazione furgoni vs non furgoni, però ci sono due gruppi che si sovrappongono
+par(mfrow=c(1,2))
+plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
+plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16, asp=1) 
+## molto buona separazione tra i 3 gruppi! (L'accelerazione è ben separata tra i 3 cluster!)
+par(mfrow=c(1,2))
+plot(data$ACC, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
+plot(data$ACC, main = 'DRIVE', col=data$Drive, pch=16) 
