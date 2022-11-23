@@ -28,16 +28,19 @@ data <- na.omit(data)
 library(mvtnorm)
 library(rgl)
 library(car)
+library(cluster)
+
+B = 1000
+seed = 26111992
 
 data.e <- daisy(data,metric = "gower")
 data.ec <- hclust(data.e, method='complete')
 # 3 cluster
-cluster.ec3 <- cutree(data.ec,k=3)
-clustering <- factor(cluster.ec3, labels=c("1","2","3"))
+clustering <- cutree(data.ec,k=3)
 
-cl1 <- subset(data[,1:12], cluster.ec3==1)
-cl2 <- subset(data[,1:12], cluster.ec3==2)
-cl3 <- subset(data[,1:12], cluster.ec3==3)
+cl1 <- subset(data[,1:12], clustering==1)
+cl2 <- subset(data[,1:12], clustering==2)
+cl3 <- subset(data[,1:12], clustering==3)
 
 n1 <- dim(cl1)[1]
 n2 <- dim(cl2)[1]
@@ -47,23 +50,36 @@ n  <- n1+n2+n3
 g <- 3
 p <- 12
 
-#permutational manova
+#PERMUTATIONAL MANOVA
 set.seed(seed)
 T_stat <- numeric(B)
+
+fit <- manova(as.matrix(data[,1:12]) ~ clustering)
+summary.manova(fit,test="Wilks") 
+T0 <- summary.manova(fit,test="Wilks")$stats[1,2]
+T0
 
 for(perm in 1:B){
   # choose random permutation
   permutation <- sample(1:n)
-  data.perm <- species.name[permutation]
-  fit.perm <- manova(as.matrix(iris4) ~ species.name.perm)
+  clust.perm <- clustering[permutation]
+  fit.perm <- manova(as.matrix(data[,1:12]) ~ clust.perm)
   T_stat[perm] <- -summary.manova(fit.perm,test="Wilks")$stats[1,2]
 }
+
+hist(T_stat,xlim=range(c(T_stat,T0)),breaks=30)
+abline(v=T0,col=3,lwd=2)
+
+plot(ecdf(T_stat),xlim=c(-2,1))
+abline(v=T0,col=3,lwd=4)
+
+# p-value
+p_val <- sum(T_stat>=T0)/B
+p_val
 
 # furgoni vs non furgoni
 cluster.ec2 <- cutree(data.ec,k=2) 
 
-B = 1000
-seed = 26111992
 
 ## VOGLIO CONFRONTARE IL PERMUTATIONAL MANOVA CONSIDERANDO NON UN FATTORE MA DUE: PRIMA IL FATTORE Drive e poi il Grouping introdotto dal clustering e ne osserviamo le differenze
 ############ PERMUTATIONAL ANOVA --> 2 CLUSTER

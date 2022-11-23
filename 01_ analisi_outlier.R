@@ -37,7 +37,6 @@ diff2 <- setdiff(height_furgoni,ind_seats)
 # [7] "https://ev-database.org/car/1547/Citroen-e-Berlingo-XL-50-kWh"
 
 ### OUTLIER ANALYSIS
-library(dplyr)
 library(ggplot2)
 
 path <- "/Users/luca/Library/CloudStorage/OneDrive-PolitecnicodiMilano/Nonparam Project/DATASET/evdatawithprices.csv"
@@ -268,6 +267,7 @@ data <- na.omit(data)
 library(mvtnorm)
 library(rgl)
 library(car)
+library(cluster)
 
 data.e <- daisy(data,metric = "gower")
 #data.m <- dist(data[,1:12],method="manhattan")
