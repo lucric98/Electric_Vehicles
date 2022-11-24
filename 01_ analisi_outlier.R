@@ -263,6 +263,19 @@ ggpairs(data[,1:15],
         lower = list(combo = "count"))
 
 ########### HIERARCHICAL CLUSTERING
+data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = Vehicles$Length, HEIGHT = Vehicles$Height, PAYLOAD = Vehicles$Max..Payload, CARGO_VOL = Vehicles$Cargo.Volume,
+                            RANGE = Vehicles$Electric.Range, 
+                            CHARGE_SPEED = Vehicles$Charge.Speed, BATTERY_CAPACITY = Vehicles$Battery.Capacity, FASTCHARGE_SPEED = Vehicles$Fastcharge.Speed,
+                            PRICE = Vehicles$Price, CONSUMPTION = Vehicles$Consumption, 
+                            POWER = Vehicles$Total.Power))
+Vehicles$Seats <- as.factor(Vehicles$Seats)
+Vehicles$Charge.Power <- as.factor(Vehicles$Charge.Power)
+Vehicles$Drive <- as.factor(Vehicles$Drive)
+Vehicles$Available <- as.factor(Vehicles$Available)
+
+factors <- data.frame(Seats = Vehicles$Seats, Charge.Power = Vehicles$Charge.Power, Drive = Vehicles$Drive)
+
+data <- data %>% mutate(factors)
 data <- na.omit(data)
 library(mvtnorm)
 library(rgl)
@@ -319,7 +332,7 @@ coph.em <- cophenetic(data.gm)
 coph.ew <- cophenetic(data.gw)
 
 ea <- cor(data.g,coph.ea) # 0.8449457
-em <- cor(data.g,coph.em) # 0.6629541
+em <- cor(data.g,coph.em) # 0.7409991
 ew <- cor(data.g,coph.ew) # 0.7784576
 
 ### ANALIZZIAMO I RISULTATI ==> K = 2
