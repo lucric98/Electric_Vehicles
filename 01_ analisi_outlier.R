@@ -275,7 +275,7 @@ data.g <- daisy(data,metric = "gower")
 #data.gs <- hclust(data.g, method='single') 
 data.ga <- hclust(data.g, method='average') 
 data.gc <- hclust(data.g, method='complete')
-data.gw <- hclust(data.g, method='ward.D2')
+data.gw <- hclust(data.g, method='ward.D')
 
 par(mfrow=c(1,3)) 
 #plot(data.gs, main='gower-single', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
@@ -331,8 +331,8 @@ for(i in 1:15){
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, ylab = colnames(data[i]))
 }
 
-## K = 2. il miglior risultato sembra essere dato dall'average linkage: è in grado distinguere molto bene la differenza tra furgoni e macchine (a parte qualche punto, però sembra clusterizzare molto bene questo aspetto)
-## K = 2. otteniamo un risultato particolarmente interessante anche dal complete linkage. se osserviamo le variabili price e power siamo in grado di dare una distinzione tra macchine più o meno potenti
+## K = 2. il miglior risultato sembra essere dato dall'average/ward linkage: è in grado distinguere molto bene la differenza tra furgoni e macchine (a parte qualche punto, però sembra clusterizzare molto bene questo aspetto)
+## K = 2. otteniamo un risultato particolarmente interessante anche dal ward linkage. se osserviamo le variabili price e power siamo in grado di dare una distinzione tra macchine più o meno potenti
 ## => quale delle due teniamo in considerazione? domanda da chiedere ai professori
 
 ### ANALIZZIAMO I RISULTATI ==> K = 3
@@ -342,16 +342,4 @@ for(i in 1:15){
   plot(data[,i], main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, ylab = colnames(data[i])) 
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, ylab = colnames(data[i]))
 }
-## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal complete linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)
-## buona separazione furgoni vs non furgoni
-par(mfrow=c(1,2))
-plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16) 
-plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16) 
-## buona separazione furgoni vs non furgoni, però ci sono due gruppi che si sovrappongono
-par(mfrow=c(1,2))
-plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
-plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16) 
-## molto buona separazione tra i 3 gruppi! (L'accelerazione è ben separata tra i 3 cluster!)
-par(mfrow=c(1,2))
-plot(data$ACC, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
-plot(data$ACC, main = 'DRIVE', col=data$Drive, pch=16) 
+## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal ward linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)

@@ -77,6 +77,4 @@ abline(v=T0,col=3,lwd=4)
 p_val <- sum(T_stat>=T0)/B
 p_val
 
-# furgoni vs non furgoni
-
 
