@@ -269,62 +269,88 @@ library(rgl)
 library(car)
 library(cluster)
 
-data.e <- daisy(data,metric = "gower")
+data.g <- daisy(data,metric = "gower")
 #data.m <- dist(data[,1:12],method="manhattan")
 
-#data.es <- hclust(data.e, method='single') 
-data.ea <- hclust(data.e, method='average') 
-data.ec <- hclust(data.e, method='complete')
-data.ew <- hclust(data.e, method='ward.D2')
+#data.gs <- hclust(data.g, method='single') 
+data.ga <- hclust(data.g, method='average') 
+data.gc <- hclust(data.g, method='complete')
+data.gw <- hclust(data.g, method='ward.D2')
 
 par(mfrow=c(1,3)) 
-#plot(data.es, main='gower-single', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
-plot(data.ea, main='gower-average', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
-rect.hclust(data.ea, k=2)
-rect.hclust(data.ea, k=3)
-plot(data.ec, main='gower-complete', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
-rect.hclust(data.ec, k=2)
-rect.hclust(data.ec, k=3)
-rect.hclust(data.ec, k=5)
-plot(data.ew, main='gower-ward', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
-rect.hclust(data.ew, k=2)
-rect.hclust(data.ew, k=3)
+#plot(data.gs, main='gower-single', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+plot(data.ga, main='gower-average', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.ga, k=2)
+rect.hclust(data.ga, k=3)
+plot(data.gc, main='gower-complete', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.gc, k=2)
+rect.hclust(data.gc, k=3)
+#rect.hclust(data.gc, k=5)
+plot(data.gw, main='gower-ward', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.gw, k=2)
+rect.hclust(data.gw, k=3)
 
 ### ANALISI --> gower DISTANCE -> AVERAGE LINKAGE
 # in questo modo otteniamo la separazione furgoni vs non furgoni
-cluster.ea3 <- cutree(data.ea,k=2)
-plot(data, main = 'gower, Average linkage', col=cluster.ea3+1, pch=16, asp=1) 
+cluster.ea2 <- cutree(data.ga,k=2)
+plot(data, main = 'gower, Average linkage', col=cluster.ea2+1, pch=16)
+cluster.ea3 <- cutree(data.ga,k=3)
+plot(data, main = 'gower, Average linkage', col=cluster.ea3+1, pch=16)
 
 ### ANALISI --> gower DISTANCE -> COMPLETE LINKAGE
-#cluster.ec2 <- cutree(data.ec,k=2)
-#plot(data, main = 'gower, Complete linkage', col=cluster.ec2+1, pch=16, asp=1) 
+cluster.ec2 <- cutree(data.gc,k=2)
+plot(data, main = 'gower, Complete linkage', col=cluster.ec2+1, pch=16) 
 # in questo modo otteniamo una netta separazione tra i vari tipi di trazione
-cluster.ec3 <- cutree(data.ec,k=3)
-plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
+cluster.ec3 <- cutree(data.gc,k=3)
+plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
 
-# cluster.ec5 <- cutree(data.ec,k=5)
-# plot(data, main = 'gower, Complete linkage', col=cluster.ec5+1, pch=16, asp=1) 
+# cluster.ec5 <- cutree(data.gc,k=5)
+# plot(data, main = 'gower, Complete linkage', col=cluster.ec5+1, pch=16) 
 
 ### ANALISI IL RISULTATO --> gower DISTANCE -> WARD LINKAGE
-cluster.ew2 <- cutree(data.ew,k=2)
-plot(data, main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, asp=1) 
+cluster.ew2 <- cutree(data.gw,k=2)
+plot(data, main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16) 
 
-cluster.ew3 <- cutree(data.ew,k=3)
-plot(data, main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, asp=1)
+cluster.ew3 <- cutree(data.gw,k=3)
+plot(data, main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16)
 
+## COPHENETIC MATRICES AND COPHENETIC COEFFICIENTS
+coph.ea <- cophenetic(data.ga)
+coph.ec <- cophenetic(data.gc)
+coph.ew <- cophenetic(data.gw)
 
-# =>>>>> secondo me il miglior risaultato si ottiene con il complete linkage, k=3
-cluster.ec3 <- cutree(data.ec,k=3)
-plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
+ea <- cor(data.g,coph.ea) # 0.8449457
+ec <- cor(data.g,coph.ec) # 0.6629541
+ew <- cor(data.g,coph.ew) # 0.7631744
 
+### ANALIZZIAMO I RISULTATI ==> K = 2
+for(i in 1:15){
+  par(mfrow=c(1,3))
+  plot(data[,i], main = 'Gower, Average linkage', col=cluster.ea2+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, ylab = colnames(data[i]))
+}
+
+## K = 2. il miglior risultato sembra essere dato dall'average linkage: è in grado distinguere molto bene la differenza tra furgoni e macchine (a parte qualche punto, però sembra clusterizzare molto bene questo aspetto)
+## K = 2. otteniamo un risultato particolarmente interessante anche dal complete linkage. se osserviamo le variabili price e power siamo in grado di dare una distinzione tra macchine più o meno potenti
+## => quale delle due teniamo in considerazione? domanda da chiedere ai professori
+
+### ANALIZZIAMO I RISULTATI ==> K = 3
+for(i in 1:15){
+  par(mfrow=c(1,3))
+  plot(data[,i], main = 'Gower, Average linkage', col=cluster.ea3+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, ylab = colnames(data[i]))
+}
+## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal complete linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)
 ## buona separazione furgoni vs non furgoni
 par(mfrow=c(1,2))
-plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16, asp=1) 
-plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16, asp=1) 
+plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16) 
+plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16) 
 ## buona separazione furgoni vs non furgoni, però ci sono due gruppi che si sovrappongono
 par(mfrow=c(1,2))
-plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, asp=1) 
-plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16, asp=1) 
+plot(data$HEIGHT, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
+plot(data$HEIGHT, main = 'DRIVE', col=data$Drive, pch=16) 
 ## molto buona separazione tra i 3 gruppi! (L'accelerazione è ben separata tra i 3 cluster!)
 par(mfrow=c(1,2))
 plot(data$ACC, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 

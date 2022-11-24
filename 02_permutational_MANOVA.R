@@ -78,11 +78,5 @@ p_val <- sum(T_stat>=T0)/B
 p_val
 
 # furgoni vs non furgoni
-cluster.ec2 <- cutree(data.ec,k=2) 
 
-
-## VOGLIO CONFRONTARE IL PERMUTATIONAL MANOVA CONSIDERANDO NON UN FATTORE MA DUE: PRIMA IL FATTORE Drive e poi il Grouping introdotto dal clustering e ne osserviamo le differenze
-############ PERMUTATIONAL ANOVA --> 2 CLUSTER
-
-############ PERMUTATIONAL ANOVA --> 3 CLUSTER
 
