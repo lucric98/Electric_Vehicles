@@ -98,7 +98,7 @@ perm_manova <- function(clustering)
   
   fit <- manova(as.matrix(data[,1:12]) ~ clustering)
   summary.manova(fit,test="Wilks") 
-  T0 <- summary.manova(fit,test="Wilks")$stats[1,2]
+  T0 <- -summary.manova(fit,test="Wilks")$stats[1,2]
   T0
   
   for(perm in 1:B){
@@ -147,3 +147,4 @@ perm_anova <- function(X, clustering)
   p_val <- sum(T_stat>=T0)/B
   p_val
 }
+
