@@ -274,7 +274,7 @@ data.g <- daisy(data,metric = "gower")
 
 #data.gs <- hclust(data.g, method='single') 
 data.ga <- hclust(data.g, method='average') 
-data.gc <- hclust(data.g, method='complete')
+data.gm <- hclust(data.g, method='mcquitty')
 data.gw <- hclust(data.g, method='ward.D')
 
 par(mfrow=c(1,3)) 
@@ -282,10 +282,9 @@ par(mfrow=c(1,3))
 plot(data.ga, main='gower-average', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
 rect.hclust(data.ga, k=2)
 rect.hclust(data.ga, k=3)
-plot(data.gc, main='gower-complete', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
-rect.hclust(data.gc, k=2)
-rect.hclust(data.gc, k=3)
-#rect.hclust(data.gc, k=5)
+plot(data.gm, main='gower-mcquitty', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
+rect.hclust(data.gm, k=2)
+rect.hclust(data.gm, k=3)
 plot(data.gw, main='gower-ward', hang=-0.1, xlab='', labels=F, cex=0.6, sub='') 
 rect.hclust(data.gw, k=2)
 rect.hclust(data.gw, k=3)
@@ -297,15 +296,15 @@ plot(data, main = 'gower, Average linkage', col=cluster.ea2+1, pch=16)
 cluster.ea3 <- cutree(data.ga,k=3)
 plot(data, main = 'gower, Average linkage', col=cluster.ea3+1, pch=16)
 
-### ANALISI --> gower DISTANCE -> COMPLETE LINKAGE
-cluster.ec2 <- cutree(data.gc,k=2)
-plot(data, main = 'gower, Complete linkage', col=cluster.ec2+1, pch=16) 
+### ANALISI --> gower DISTANCE -> mcquitty LINKAGE
+cluster.em2 <- cutree(data.gm,k=2)
+plot(data, main = 'gower, mcquitty linkage', col=cluster.em2+1, pch=16) 
 # in questo modo otteniamo una netta separazione tra i vari tipi di trazione
-cluster.ec3 <- cutree(data.gc,k=3)
-plot(data, main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16) 
+cluster.em3 <- cutree(data.gm,k=3)
+plot(data, main = 'Gower, mcquitty linkage', col=cluster.em3+1, pch=16) 
 
 # cluster.ec5 <- cutree(data.gc,k=5)
-# plot(data, main = 'gower, Complete linkage', col=cluster.ec5+1, pch=16) 
+# plot(data, main = 'gower, mcquitty linkage', col=cluster.ec5+1, pch=16) 
 
 ### ANALISI IL RISULTATO --> gower DISTANCE -> WARD LINKAGE
 cluster.ew2 <- cutree(data.gw,k=2)
@@ -316,18 +315,18 @@ plot(data, main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16)
 
 ## COPHENETIC MATRICES AND COPHENETIC COEFFICIENTS
 coph.ea <- cophenetic(data.ga)
-coph.ec <- cophenetic(data.gc)
+coph.em <- cophenetic(data.gm)
 coph.ew <- cophenetic(data.gw)
 
 ea <- cor(data.g,coph.ea) # 0.8449457
-ec <- cor(data.g,coph.ec) # 0.6629541
-ew <- cor(data.g,coph.ew) # 0.7631744
+em <- cor(data.g,coph.em) # 0.6629541
+ew <- cor(data.g,coph.ew) # 0.7784576
 
 ### ANALIZZIAMO I RISULTATI ==> K = 2
 for(i in 1:15){
   par(mfrow=c(1,3))
   plot(data[,i], main = 'Gower, Average linkage', col=cluster.ea2+1, pch=16, ylab = colnames(data[i])) 
-  plot(data[,i], main = 'Gower, Complete linkage', col=cluster.ec2+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, mcquitty linkage', col=cluster.em2+1, pch=16, ylab = colnames(data[i])) 
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, ylab = colnames(data[i]))
 }
 
@@ -339,7 +338,7 @@ for(i in 1:15){
 for(i in 1:15){
   par(mfrow=c(1,3))
   plot(data[,i], main = 'Gower, Average linkage', col=cluster.ea3+1, pch=16, ylab = colnames(data[i])) 
-  plot(data[,i], main = 'Gower, Complete linkage', col=cluster.ec3+1, pch=16, ylab = colnames(data[i])) 
+  plot(data[,i], main = 'Gower, mcquitty linkage', col=cluster.em3+1, pch=16, ylab = colnames(data[i])) 
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, ylab = colnames(data[i]))
 }
 ## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal ward linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)
