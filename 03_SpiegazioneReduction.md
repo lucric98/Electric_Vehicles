@@ -1,11 +1,11 @@
-1 Reduction of the dataset
+#Reduction of the dataset
 
-## WEATHER CONDITIONS ##
+#WEATHER CONDITIONS
 
 the data about weather have a stroooong correlation (>0.99); 
 we can keep just one of them as a summary of the information
 
-## PHYSICAL DIMENSIONS ##
+#PHYSICAL DIMENSIONS
 
 length and width correlated (0.86), even length and wheelbase (0.9)
 and length and GVWR (0.9); so we can just jeep length as a summary of all these variables
@@ -17,7 +17,7 @@ in all these plots we see that the correlation is quite strong till an extremum
 so we keep as a summary of the physical quantities Length, Height, Volume and max payload,
 that seems to be good to describe basically all the vehicle 
 
-## ALL THE OTHERS ##
+#ALL THE OTHERS
 
 I delete covariates link and availability (useless)
 
