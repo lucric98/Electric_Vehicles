@@ -182,4 +182,4 @@ plot(data$CONSUMPTION, main="3 clusters, mcquitty linkage", col = clustering.m3,
 plot(data$CONSUMPTION, main="3 clusters, ward linkage", col = clustering.w3,pch=16)
 
 
-
+#perm_anova(data$PRICE,clustering.m3)
