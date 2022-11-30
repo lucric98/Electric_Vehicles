@@ -355,3 +355,5 @@ for(i in 1:15){
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, ylab = colnames(data[i]))
 }
 ## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal ward linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)
+
+
