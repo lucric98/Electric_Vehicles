@@ -46,7 +46,7 @@ perm_manova <- function(clustering)
   
   # p-value
   p_val <- sum(T_stat>=T0)/B
-  p_val
+  return(p_val)
 }
 
 perm_anova <- function(X, clustering)
@@ -63,7 +63,7 @@ perm_anova <- function(X, clustering)
     permutation <- sample(1:n)
     X.perm <- X[permutation]
     fit.perm <- aov(X.perm ~ clustering)
-    T_stat[perm] <- summary(fit)[[1]][1,4]
+    T_stat[perm] <- summary(fit.perm)[[1]][1,4]
   }
   
   hist(T_stat,xlim=range(c(T_stat,T0)),breaks=30)
@@ -74,7 +74,7 @@ perm_anova <- function(X, clustering)
   
   # p-value
   p_val <- sum(T_stat>=T0)/B
-  p_val
+  return(p_val)
 }
 
 ########### HIERARCHICAL CLUSTERING
@@ -109,7 +109,7 @@ n2 <- dim(cl2)[1]
 n  <- n1+n2
 g <- 2
 p <- 12
-## Manova
+## permutational Manova
 perm_manova(clustering.m2)
 # permutational p-value = 0
 
@@ -120,11 +120,22 @@ perm_manova(clustering.m2)
 #   theme(legend.position="none") +
 #   scale_x_discrete(labels=my_xlab)
 
-# perm_anova(data$ACC,clustering.m2)
-# perm_anova(data$HEIGHT, clustering.m2)
-# perm_anova(data$LENGTH,clustering.m2)
-# perm_anova(data$PAYLOAD,clustering.m2)
-### PROBLEMA! vedi file commenti
+for(i in 1:12){
+  print(perm_anova(data[,i],clustering.m2))
+}
+# PERMUTATIONAL P-VALUE
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0.0024
+# [1] 0
+# [1] 0.0835 --> PRICE unica caratteristica per cui accettiamo l'ipotesi nulla
+# [1] 0
+# [1] 0
 
 ### PERMUTATIONAL MANOVA WITH K=3, WARD LINKAGE
 cl1 <- subset(data[,1:12], clustering.w3==1)
@@ -138,8 +149,28 @@ n3 <- dim(cl3)[1]
 n  <- n1+n2+n3
 g <- 3
 p <- 12
+#permutational Manova
 perm_manova(clustering.w3)
 # permutational p-value = 0
+
+#permutational Anova
+for(i in 1:12){
+  print(perm_anova(data[,i],clustering.w3))
+}
+# PERMUTATIONAL P-VALUE 
+# [1] 2e-04
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0.0309
+# [1] 0
+# [1] 0.0038
+# [1] 0.6742 -> FASTCHARGE_SPEED
+# [1] 0
+# [1] 0
+# [1] 0.0966 -> POWER
+
 ### PERMUTATIONAL MANOVA WITH K=3, MCQUITTY LINKAGE
 cl1 <- subset(data[,1:12], clustering.m3==1)
 cl2 <- subset(data[,1:12], clustering.m3==2)
@@ -152,8 +183,27 @@ n3 <- dim(cl3)[1]
 n  <- n1+n2+n3
 g <- 3
 p <- 12
+#permutational Manova
 perm_manova(clustering.m3)
 # permutational p-value = 0
+
+#permutational Anova
+for(i in 1:12){
+  print(perm_anova(data[,i],clustering.m3))
+}
+# PERMUTATIONAL P-VALUE 
+# [1] 0
+# [1] 0.2779 -> LENGTH
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
+# [1] 0
 
 ### PERMUTATIONAL MANOVA PER LA TRAZIONE
 table(data$Drive)
@@ -182,4 +232,5 @@ plot(data$CONSUMPTION, main="3 clusters, mcquitty linkage", col = clustering.m3,
 plot(data$CONSUMPTION, main="3 clusters, ward linkage", col = clustering.w3,pch=16)
 
 
-#perm_anova(data$PRICE,clustering.m3)
+perm_anova(data$PRICE,clustering.m3)
+summary(aov(data$HEIGHT~clustering.m2 ))
