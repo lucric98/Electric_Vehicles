@@ -23,74 +23,6 @@ Vehicles <- Vehicles %>% mutate(factors)
 #riaggiungo le variabili categoriche
 data <- data %>% mutate(factors)
 
-########### HIERARCHICAL CLUSTERING
-data <- na.omit(data)
-library(mvtnorm)
-library(rgl)
-library(car)
-library(cluster)
-
-B = 10000
-seed = 26111992
-
-data.e <- daisy(data,metric = "gower")
-data.ea <- hclust(data.e, method = "average")
-data.em <- hclust(data.e, method = "mcquitty")
-data.ew <- hclust(data.e, method = "ward.D")
-# clustering
-clustering.a2 <- cutree(data.ea,k=2)
-clustering.m2 <- cutree(data.em,k=2)
-
-clustering.a3 <- cutree(data.ea,k=3)
-clustering.m3 <- cutree(data.em,k=3)
-clustering.w3 <- cutree(data.ew,k=3)
-
-### PERMUTATIONAL MANOVA WITH K=3, AVERAGE LINKAGE
-cl1 <- subset(data[,1:12], clustering.a3==1)
-cl2 <- subset(data[,1:12], clustering.a3==2)
-cl3 <- subset(data[,1:12], clustering.a3==3)
-
-n1 <- dim(cl1)[1]
-n2 <- dim(cl2)[1]
-n3 <- dim(cl3)[1]
-
-n  <- n1+n2+n3
-g <- 3
-p <- 12
-perm_manova(clustering.a3)
-for(i in 1:12){
-  perm_anova(data[,i],clustering.a3)
-}
-
-### PERMUTATIONAL MANOVA WITH K=3, WARD LINKAGE
-cl1 <- subset(data[,1:12], clustering.w3==1)
-cl2 <- subset(data[,1:12], clustering.w3==2)
-cl3 <- subset(data[,1:12], clustering.w3==3)
-
-n1 <- dim(cl1)[1]
-n2 <- dim(cl2)[1]
-n3 <- dim(cl3)[1]
-
-n  <- n1+n2+n3
-g <- 3
-p <- 12
-perm_manova(clustering.w3)
-
-### PERMUTATIONAL MANOVA WITH K=3, MCQUITTY LINKAGE
-cl1 <- subset(data[,1:12], clustering.m3==1)
-cl2 <- subset(data[,1:12], clustering.m3==2)
-cl3 <- subset(data[,1:12], clustering.m3==3)
-
-n1 <- dim(cl1)[1]
-n2 <- dim(cl2)[1]
-n3 <- dim(cl3)[1]
-
-n  <- n1+n2+n3
-g <- 3
-p <- 12
-perm_manova(clustering.m3)
-
-
 perm_manova <- function(clustering)
 {
   set.seed(seed)
@@ -132,15 +64,15 @@ perm_anova <- function(X, clustering)
   for(perm in 1:B){
     # choose random permutation
     permutation <- sample(1:n)
-    clust.perm <- clustering[permutation]
-    fit.perm <- aov(X ~ clust.perm)
+    X.perm <- X[permutation]
+    fit.perm <- aov(X.perm ~ clustering)
     T_stat[perm] <- summary(fit)[[1]][1,4]
   }
   
   hist(T_stat,xlim=range(c(T_stat,T0)),breaks=30)
   abline(v=T0,col=3,lwd=2)
   
-  plot(ecdf(T_stat),xlim=c(-1,20))
+  plot(ecdf(T_stat))
   abline(v=T0,col=3,lwd=4)
   
   # p-value
@@ -148,3 +80,87 @@ perm_anova <- function(X, clustering)
   p_val
 }
 
+########### HIERARCHICAL CLUSTERING
+data <- na.omit(data)
+library(mvtnorm)
+library(rgl)
+library(car)
+library(cluster)
+
+B = 10000
+seed = 26111992
+
+data.e <- daisy(data,metric = "gower")
+data.ea <- hclust(data.e, method = "average")
+data.em <- hclust(data.e, method = "mcquitty")
+data.ew <- hclust(data.e, method = "ward.D")
+# clustering
+clustering.a2 <- cutree(data.ea,k=2)
+clustering.m2 <- cutree(data.em,k=2)
+
+clustering.a3 <- cutree(data.ea,k=3)
+clustering.m3 <- cutree(data.em,k=3)
+clustering.w3 <- cutree(data.ew,k=3)
+
+### PERMUTATIONAL MANOVA WITH K=2, MCQUITTY LINKAGE
+cl1 <- subset(data[,1:12], clustering.m2==1)
+cl2 <- subset(data[,1:12], clustering.m2==2)
+
+n1 <- dim(cl1)[1]
+n2 <- dim(cl2)[1]
+
+n  <- n1+n2
+g <- 2
+p <- 12
+## Manova
+perm_manova(clustering.m2)
+# permutational p-value = 0
+
+# my_xlab <- paste(levels(data$Type),"\n(N=",table(data$Type),")",sep="")
+# 
+# ggplot(data, aes(x=Type, y=HEIGHT, fill=Type)) +
+#   geom_boxplot(varwidth = TRUE, alpha=0.2) +
+#   theme(legend.position="none") +
+#   scale_x_discrete(labels=my_xlab)
+
+# perm_anova(data$ACC,clustering.m2)
+# perm_anova(data$HEIGHT, clustering.m2)
+# perm_anova(data$LENGTH,clustering.m2)
+# perm_anova(data$PAYLOAD,clustering.m2)
+### PROBLEMA! vedi file commenti
+
+### PERMUTATIONAL MANOVA WITH K=3, WARD LINKAGE
+cl1 <- subset(data[,1:12], clustering.w3==1)
+cl2 <- subset(data[,1:12], clustering.w3==2)
+cl3 <- subset(data[,1:12], clustering.w3==3)
+
+n1 <- dim(cl1)[1]
+n2 <- dim(cl2)[1]
+n3 <- dim(cl3)[1]
+
+n  <- n1+n2+n3
+g <- 3
+p <- 12
+perm_manova(clustering.w3)
+# permutational p-value = 0
+### PERMUTATIONAL MANOVA WITH K=3, MCQUITTY LINKAGE
+cl1 <- subset(data[,1:12], clustering.m3==1)
+cl2 <- subset(data[,1:12], clustering.m3==2)
+cl3 <- subset(data[,1:12], clustering.m3==3)
+
+n1 <- dim(cl1)[1]
+n2 <- dim(cl2)[1]
+n3 <- dim(cl3)[1]
+
+n  <- n1+n2+n3
+g <- 3
+p <- 12
+perm_manova(clustering.m3)
+# permutational p-value = 0
+
+### PERMUTATIONAL MANOVA PER LA TRAZIONE
+table(data$Drive)
+perm_manova(data$Drive)
+# permutational p-value = 0
+
+perm_anova(data$ACC,data$Drive)
