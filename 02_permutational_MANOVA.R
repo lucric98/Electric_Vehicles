@@ -10,9 +10,6 @@ Vehicles$Available <- as.factor(Vehicles$Available)
 
 factors <- data.frame(Seats = Vehicles$Seats, Charge.Power = Vehicles$Charge.Power, Drive = Vehicles$Drive)
 
-Vehicles <- select_if(Vehicles, is.numeric)
-Vehicles <- Vehicles %>% select(-c(id))
-
 data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = Vehicles$Length, HEIGHT = Vehicles$Height, PAYLOAD = Vehicles$Max..Payload, CARGO_VOL = Vehicles$Cargo.Volume,
                             RANGE = Vehicles$Electric.Range, 
                             CHARGE_SPEED = Vehicles$Charge.Speed, BATTERY_CAPACITY = Vehicles$Battery.Capacity, FASTCHARGE_SPEED = Vehicles$Fastcharge.Speed,
@@ -164,3 +161,25 @@ perm_manova(data$Drive)
 # permutational p-value = 0
 
 perm_anova(data$ACC,data$Drive)
+
+## PLOT DELLE QUANTITA' DI INTERESSE RISPETTO ALLE VARIA SUDDIVISIONI
+par(mfrow=c(2,2))
+plot(data$PRICE, main="Drive", col = rainbow(data$Drive),pch=16)
+plot(data$PRICE, main="2 clusters, mcquitty linkage", col = clustering.m2+1,pch=16)
+plot(data$PRICE, main="3 clusters, mcquitty linkage", col = clustering.m3+1,pch=16)
+plot(data$PRICE, main="3 clusters, ward linkage", col = clustering.w3+1,pch=16)
+
+par(mfrow=c(2,2))
+plot(data$RANGE, main="Drive", col = rainbow(data$Drive),pch=16)
+plot(data$RANGE, main="2 clusters, mcquitty linkage", col = clustering.m2+1,pch=16)
+plot(data$RANGE, main="3 clusters, mcquitty linkage", col = clustering.m3+1,pch=16)
+plot(data$RANGE, main="3 clusters, ward linkage", col = clustering.w3+1,pch=16)
+
+par(mfrow=c(2,2))
+plot(data$CONSUMPTION, main="Drive", col = rainbow(data$Drive),pch=16)
+plot(data$CONSUMPTION, main="2 clusters, mcquitty linkage", col = clustering.m2,pch=16)
+plot(data$CONSUMPTION, main="3 clusters, mcquitty linkage", col = clustering.m3,pch=16)
+plot(data$CONSUMPTION, main="3 clusters, ward linkage", col = clustering.w3,pch=16)
+
+
+
