@@ -32,7 +32,8 @@ Alla fine ho fatto ho una bagplot con tutte queste caratteristiche: come evidenz
 ## CLUSTERING
 Ho applicato Hierarchical clustering sul dataset ridotto (ho tenuto solo le variabili in MAIUSCOLO a cui ho aggiunto le 3 variabili categoriche: SEATS, DRIVE, CHARGE_POWER). Per ottenere clustering sensato ho usato Hierarchical Clustering (_distance="gower"_ -> una distanza che permette di trattare variabili categoriche e continue assieme, _average linkage_, _mcquitty linkage_, _ward linkage_, _k=2_, _k=3_). 
 * **_K = 2_**. Il miglior risultato sembra essere dato dall'**average/mcquitty linkage**: è in grado distinguere molto bene la differenza tra furgoni e macchine (a parte qualche punto, però sembra clusterizzare molto bene questo aspetto)
-* **_K = 3_**_ `Vorrei far vedere questo risultato a Cappozzo per capire se sia meglio tenere 2 o 3 clusters`. A me sembra che il risultato migliore in questa situazione sia dato dal **ward linkage** (o **mcquitty**?), che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero).
+* **_K = 3_**_ `Vorrei far vedere questo risultato a Cappozzo per capire se sia meglio tenere 2 o 3 clusters`. A me sembra che il risultato migliore in questa situazione sia dato dal **Mcquitty** (o **Ward**?), che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero).
+* Un ultimo modo per clusterizzare ii dati consiste nel suddividere i dati secondo il tipoo di trazione (Awd, front, Rear).
 
 Ad ogni modo i risultati i sembrano più che accettabili, anzi direi che sono buoni.
 Se tolgo le variabili categoriche e cerco di appplicare il clustering ottengo risultati poco sensati e non mi sembra il caso di perdere troppo tempo per cercare di applicare il k-means (è molto complicato applicarlo quando ci sono variabili categoriche). Quindi visto che ho ottenuto risultati più o meno soddisfacenti adesso bisogna confrontare questo tipo di analisi con una **permutational ANOVA** --> tecnica del corso!
@@ -43,4 +44,5 @@ Ho applicato il permutational MANOVA per le variabili scritte in MAIUSCOLO (togl
 * **3 clusters - Ward linkage**
 * **3 clusters - Mcquitty linkage**
 * **Trazione (Front, Rear, AWD)**
-`Anche qua ho dei dubbi da mostrare a Cappozzo perché mentre il permutational manova ci da il risultato atteso nessuno dei singoli permutational Anova da il risultato che mi aspetto (i p-value sono tutti 1 dei permutational anova e non capisco perché sinceramente)`
+In tutti i casi il permutational p-value è 0, questo significa che esiste una differenza significativa nelle medie dei vari gruppi
+Dopo di chè ho applicato permutational ANOVA sulle singole caratteristiche per ciascuno dei 4 clustering. Anche in questo caso molto spesso si osservano differenze nelle medie dei vari gruppi (non di tutti, però della maggior parte. i risultati sono scritti sotto forma di commenti nel file di R).
