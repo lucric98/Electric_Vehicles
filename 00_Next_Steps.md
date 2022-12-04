@@ -5,4 +5,8 @@
 5. [x] clustering con hierarchical clustering (distanza "gower") per cercare di distinguere le popolazioni (Luca). 
 5.1. [ ] analizzando il risultato del clustering mi è venuto in mente che si potrebbe usare permutational Manova (tecnica nonparametrica da confrontare con il clustering fatto con hclust e kmeans)
 7. [ ] regressioni non lineari! (GAMS + altri modelli)
-8. [ ] studio di Vehicle fuel equivalent e Consumption!
+8. [ ] studio di Vehicle fuel equivalent e Consumptions
+
+DOMANDE PER CAPPOZZO: 
+1. Come trattare outliers? (io a priori non rimuoverei nessun punto, perchè sono macchine e non osservazioni sbagliate: vale la pena fare considerazioni su qualche variabile? ad esempio: CHARGE_SPEED che ha dei pesanti outlier si può pensare di rimuoverla? C'è un punto che ha accelerazione mega elevata: cosa ne facciamo?)
+2. Come utilizzare al meglio i clustering che ho ottenuto? C'è un modo per utilizzarli? Magari nella regressione? Si può pensare di utrilizzare i famosi modelli ad effetti misti?
