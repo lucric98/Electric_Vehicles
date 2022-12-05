@@ -39,9 +39,9 @@ clustering.m3 <- cutree(data.em,k=3)-1
 clustering.w3 <- cutree(data.ew,k=3)-1
 clustering.m2 <- cutree(data.em,k=2)-1
 ## INSERISCO IL CLUSTERING COME COVARIATA:  in questo caso bisognerebbe trovare un modo per applicare la relazione della dummy variable rispetto a certe covariate come l'altezza (mixed effects models)
-data.m2 <- data %>% mutate(clustering.m2)
-data.m3 <- data %>% mutate(clustering.m3)
-data.w3 <- data %>% mutate(clustering.w3)
+data.m2 <- data %>% mutate(as.factor(clustering.m2))
+data.m3 <- data %>% mutate(as.factor(clustering.m3))
+data.w3 <- data %>% mutate(as.factor(clustering.w3))
 
 for (i in 1:12){
   ##check visivi per capire le relazioni tra i vari punti del dataset
