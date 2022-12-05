@@ -35,13 +35,13 @@ data <- na.omit(data)
 data.e <- daisy(data,metric = "gower")
 data.em <- hclust(data.e, method = "mcquitty")
 data.ew <- hclust(data.e, method = "ward.D")
-clustering.m3 <- cutree(data.em,k=3)-1
-clustering.w3 <- cutree(data.ew,k=3)-1
-clustering.m2 <- cutree(data.em,k=2)-1
+clustering.m3 <- as.factor(cutree(data.em,k=3)-1)
+clustering.w3 <- as.factor(cutree(data.ew,k=3)-1)
+clustering.m2 <- as.factor(cutree(data.em,k=2)-1)
 ## INSERISCO IL CLUSTERING COME COVARIATA:  in questo caso bisognerebbe trovare un modo per applicare la relazione della dummy variable rispetto a certe covariate come l'altezza (mixed effects models)
-data.m2 <- data %>% mutate(as.factor(clustering.m2))
-data.m3 <- data %>% mutate(as.factor(clustering.m3))
-data.w3 <- data %>% mutate(as.factor(clustering.w3))
+data.m2 <- data %>% mutate(clustering.m2)
+data.m3 <- data %>% mutate(clustering.m3)
+data.w3 <- data %>% mutate(clustering.w3)
 
 for (i in 1:12){
   ##check visivi per capire le relazioni tra i vari punti del dataset
@@ -54,8 +54,8 @@ for (i in 1:12){
 
 ## ATTENZIONE: i punti outlier o comunque tutti i punti che rimangono ai margini della distribuzione hanno un effetto molto importante: come trattiamo questa situazione?
 ## variabili che presentano questo tipo di problemi: LENGTH, MAX_PAYLOAD, CARGO_VOL, CHARGE_SPEED
-data2 <- data[-c(which(data$CHARGE_SPEED %in% boxplot.stats(data$CHARGE_SPEED)$out)),]
-with(data2, scatterplotMatrix(data.frame(data2$PRICE, data2$CHARGE_SPEED)))
+# data2 <- data[-c(which(data$CHARGE_SPEED %in% boxplot.stats(data$CHARGE_SPEED)$out)),]
+# with(data2, scatterplotMatrix(data.frame(data2$PRICE, data2$CHARGE_SPEED)))
 # da qui possiamo osservare quanto siano influenti quei punti alla fine del dominio!! (domanda per cappozzo)
 
 ## primo modello: includo tutte le covariate
@@ -64,9 +64,13 @@ gam_model <- gam(PRICE ~ s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") 
                  + s(CHARGE_SPEED,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + s(FASTCHARGE_SPEED,bs="cr") + Seats + Drive + Charge.Power + clustering.m2, data=data.m2)
 summary(gam_model)
 
-## secondo modello: escludo le categoriche (tengo in considerazione il clustering)
+## secondo modello: escludo le categoriche (tengo in considerazione il clustering) e due continue
+gam_model2.m2 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
+                     + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m2, data = data.m3)
+summary(gam_model2.m2)
+
 gam_model2.m3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m3, data = data.m3)
+                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m3, data = data.m3)
 summary(gam_model2.m3)
 
 gam_model2.w3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
@@ -74,14 +78,15 @@ gam_model2.w3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="
 summary(gam_model2.w3)
 
 ## terzo modello: escludo le categoriche tranne la TRAZIONE
-gam_model3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive, data = data)
-summary(gam_model3)
+gam_model2.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
+                     + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive, data = data.m3)
+summary(gam_model2.drive)
 
+gam_model2.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") +
+                        + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive + CARGO_VOL, data = data.m3)
+summary(gam_model2.drive)
 
-gam_model2 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Charge.Power, data = data)
-summary(gam_model2)
+plot(gam_model2.drive)
 
 ## da qui ci accorgiamo che i punti outlier o che comunque si trovano alla fine del dominio vanno trattati in maniera differente
 # gam_model2 <- gam(PRICE ~ s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
