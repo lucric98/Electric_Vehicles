@@ -342,7 +342,7 @@ for(i in 1:15){
   plot(data[,i], main = 'Gower, mcquitty linkage', col=cluster.em2+1, pch=16, ylab = colnames(data[i])) 
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew2+1, pch=16, ylab = colnames(data[i]))
 }
-
+## FASTCHARGE_SPEED - CHARGE SPEED
 ## K = 2. il miglior risultato sembra essere dato dall'average/ward linkage: è in grado distinguere molto bene la differenza tra furgoni e macchine (a parte qualche punto, però sembra clusterizzare molto bene questo aspetto)
 ## K = 2. otteniamo un risultato particolarmente interessante anche dal ward linkage. se osserviamo le variabili price e power siamo in grado di dare una distinzione tra macchine più o meno potenti
 ## => quale delle due teniamo in considerazione? domanda da chiedere ai professori
