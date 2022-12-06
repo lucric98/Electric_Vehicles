@@ -31,7 +31,7 @@ data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = V
 data <- data %>% mutate(factors)
 
 data <- na.omit(data)
-
+data[,1:12] <- scale(data[,1:12])
 data.e <- daisy(data,metric = "gower")
 data.em <- hclust(data.e, method = "mcquitty")
 data.ew <- hclust(data.e, method = "ward.D")
@@ -42,6 +42,7 @@ clustering.m2 <- as.factor(cutree(data.em,k=2)-1)
 data.m2 <- data %>% mutate(clustering.m2)
 data.m3 <- data %>% mutate(clustering.m3)
 data.w3 <- data %>% mutate(clustering.w3)
+
 
 for (i in 1:12){
   ##check visivi per capire le relazioni tra i vari punti del dataset
@@ -61,7 +62,7 @@ for (i in 1:12){
 ## primo modello: includo tutte le covariate
 gam_model <- gam(PRICE ~ s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr")
-                 + s(CHARGE_SPEED,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + s(FASTCHARGE_SPEED,bs="cr") + Seats + Drive + Charge.Power + clustering.m2, data=data.m2)
+                 + s(CHARGE_SPEED,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + s(FASTCHARGE_SPEED,bs="cr") + Seats + Drive + Charge.Power, data=data.m2)
 summary(gam_model)
 
 ## secondo modello: escludo le categoriche (tengo in considerazione il clustering) e due continue
@@ -73,14 +74,17 @@ gam_model2.m3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="
                   + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m3, data = data.m3)
 summary(gam_model2.m3)
 
+
+
+## unico clustering che esce decente ma devo raggruppare due clustering:
 gam_model2.w3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
                   + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.w3, data = data.w3)
 summary(gam_model2.w3)
 
 ## terzo modello: escludo le categoriche tranne la TRAZIONE
-gam_model2.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
+gam_model.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
                      + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive, data = data.m3)
-summary(gam_model2.drive)
+summary(gam_model.drive)
 
 gam_model2.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") +
                         + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive + CARGO_VOL, data = data.m3)
@@ -88,107 +92,10 @@ summary(gam_model2.drive)
 
 plot(gam_model2.drive)
 
-## da qui ci accorgiamo che i punti outlier o che comunque si trovano alla fine del dominio vanno trattati in maniera differente
-# gam_model2 <- gam(PRICE ~ s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-#                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr")
-#                  + s(CHARGE_SPEED,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + s(FASTCHARGE_SPEED,bs="cr"), data=data2)
-# 
-# summary(gam_model2)
+## da rivedere questo confronto ANOVA (1: non so se le assunzioni vengano rispettate, 2: vale davvero la pena tornare al modello più complesso)
+anova(gam_model2.drive,gam_model.drive,test="F")
 
-
-# # simple linear regression
-# model_lm1=lm(Price ~ Electric.Range 
-#                   + Vehicle.Fuel.Euivalent 
-#                   + Charge.Speed 
-#                   + Total.Power
-#                   + Height
-#                   + Length
-#                   + Max..Payload
-#                   + Cargo.Volume, data=data)
-# summary(model_lm1)
-# 
-# # tolgo charge.speed
-# model_lm2=lm(Price ~ Electric.Range 
-#              + Vehicle.Fuel.Euivalent 
-#              + Total.Power
-#              + Height
-#              + Length
-#              + Max..Payload
-#              + Cargo.Volume, data=data)
-# summary(model_lm2)
-# 
-# # tolgo max.payload
-# model_lm3=lm(Price ~ Electric.Range 
-#              + Vehicle.Fuel.Euivalent 
-#              + Total.Power
-#              + Height
-#              + Length
-#              + Cargo.Volume, data=data)
-# summary(model_lm3)
-# 
-# # tolgo electric.range
-# model_lm4=lm(Price ~ Vehicle.Fuel.Euivalent 
-#              + Total.Power
-#              + Height
-#              + Length
-#              + Cargo.Volume, data=data)
-# summary(model_lm4)
-# 
-# # per ora sembra essere il miglior modello (linear regression)
-# # ma le assunzioni per regressione lineare non sono soddisfatte (come ci aspettavamo)
-# plot(model_lm4)
-# shapiro.test(residuals(model_lm4))
-# 
-# #GLM
-# # (1)cubic spline basis
-# model_gam1=gam(Price ~ s(Electric.Range,bs='cr') 
-#                     + s(Vehicle.Fuel.Euivalent,bs='cr')
-#                     + s(Charge.Speed,bs='cr') 
-#                     + s(Total.Power,bs='cr') 
-#                     + s(Height,bs='cr') 
-#                     + s(Length,bs='cr') 
-#                     + s(Max..Payload,bs='cr') 
-#                     + s(Cargo.Volume,bs='cr'), data=data
-#               )
-# summary(model_gam1)
-# # alto R-sq 0.971, ma max.payload sembra poco significativo
-# 
-# # tolgo max.paypload
-# model_gam2=gam(Price ~ s(Electric.Range,bs='cr') 
-#                + s(Vehicle.Fuel.Euivalent,bs='cr')
-#                + s(Charge.Speed,bs='cr') 
-#                + s(Total.Power,bs='cr') 
-#                + s(Height,bs='cr') 
-#                + s(Length,bs='cr') 
-#                + s(Cargo.Volume,bs='cr'), data=data
-#               )
-# summary(model_gam2)
-# # quasi identico R-sq 0.969, tutte variabili significative
-# 
-# # residuals
-# hist(model_gam2$residuals)
-# qqnorm(model_gam2$residuals)
-# 
-# # normality test
-# shapiro.test(model_gam2$residuals)
-# 
-# # (2)natural cubic splines
-# model_gam_ns =
-#   lm(Price ~ ns(Electric.Range,df=8) 
-#             + ns(Vehicle.Fuel.Euivalent,df=8)
-#             + ns(Charge.Speed,df=8) 
-#             + ns(Total.Power,df=8) 
-#             + ns(Height,df=8) 
-#             + ns(Length,df=8) 
-#             + ns(Cargo.Volume,df=8), data=data
-#      )
-# # summary(model_gam_ns)
-# 
-# # scatterplot for the two models
-# plot(model_gam_ns$residuals,model_gam2$residuals)
-# cor(model_gam_ns$residuals,model_gam2$residuals)
-# 
-# # Consider model with cubic spline basis
-# # I look at the contribution of a single predictor 
-# # holding all the others fixed
-# plot(model_gam2)
+## proviamo a fittare con natural cubic splices
+#model_gam_ns <-   lm(prestige ~ ns(education, df = 3) + ns(income, df = 3), data = Prestige
+                     
+                     
