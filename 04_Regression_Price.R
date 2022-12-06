@@ -55,8 +55,8 @@ for (i in 1:12){
 
 ## ATTENZIONE: i punti outlier o comunque tutti i punti che rimangono ai margini della distribuzione hanno un effetto molto importante: come trattiamo questa situazione?
 ## variabili che presentano questo tipo di problemi: LENGTH, MAX_PAYLOAD, CARGO_VOL, CHARGE_SPEED
-# data2 <- data[-c(which(data$CHARGE_SPEED %in% boxplot.stats(data$CHARGE_SPEED)$out)),]
-# with(data2, scatterplotMatrix(data.frame(data2$PRICE, data2$CHARGE_SPEED)))
+data2 <- data[-c(which(data$CHARGE_SPEED %in% boxplot.stats(data$CHARGE_SPEED)$out)),]
+with(data2, scatterplotMatrix(data.frame(data2$PRICE, data2$CHARGE_SPEED)))
 # da qui possiamo osservare quanto siano influenti quei punti alla fine del dominio!! (domanda per cappozzo)
 
 ## primo modello: includo tutte le covariate
@@ -67,14 +67,12 @@ summary(gam_model)
 
 ## secondo modello: escludo le categoriche (tengo in considerazione il clustering) e due continue
 gam_model2.m2 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-                     + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m2, data = data.m2)
+                     + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m2 + Drive, data = data.m2)
 summary(gam_model2.m2)
 
 gam_model2.m3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
-                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m3, data = data.m3)
+                  + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(CONSUMPTION,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + clustering.m3 + Drive, data = data.m3)
 summary(gam_model2.m3)
-
-
 
 ## unico clustering che esce decente ma devo raggruppare due clustering:
 gam_model2.w3 <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="cr") + s(CARGO_VOL,bs="cr")
@@ -98,4 +96,8 @@ anova(gam_model2.drive,gam_model.drive,test="F")
 ## proviamo a fittare con natural cubic splices
 #model_gam_ns <-   lm(prestige ~ ns(education, df = 3) + ns(income, df = 3), data = Prestige
                      
+pairs(cbind(data$PRICE, data$ACC, data$LENGTH, data$HEIGHT, data$RANGE, data$POWER, data$BATTERY_CAPACITY, data$CARGO_VOL, data$CONSUMPTION), col = data$Drive)
+summary(lm(PRICE ~ POWER + Drive, data = data))
+summary(lm(RANGE ~ BATTERY_CAPACITY, data = data))
+summary(lm(CONSUMPTION ~ I(sqrt(LENGTH)), data = data))
                      
