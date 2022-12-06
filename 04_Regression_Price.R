@@ -87,8 +87,42 @@ summary(gam_model.drive)
 gam_model2.drive <- gam(PRICE ~  s(ACC,bs="cr") + s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") +
                         + s(RANGE,bs="cr") + s(POWER,bs="cr") + s(BATTERY_CAPACITY,bs="cr") + Drive + CARGO_VOL, data = data.m3)
 summary(gam_model2.drive)
-
 plot(gam_model2.drive)
+
+gam_model3 <- gam(PRICE ~  s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(RANGE,bs="cr") + s(BATTERY_CAPACITY,bs="cr") 
+                        + Drive + CARGO_VOL, data = data.m3)
+summary(gam_model3)
+
+gam_model3 <- gam(PRICE ~  s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(RANGE,bs="cr") + s(BATTERY_CAPACITY,bs="cr") 
+                  + Drive + CARGO_VOL + POWER, data = data)
+summary(gam_model3)
+
+
+## UTILIZZANDO SOLO LA POTENZA RIUSCIAMO AD OTTENERE R-Squared(adj) > 0.8
+gam_simple_PRICE <- gam(PRICE ~ s(POWER, bs="cr"), data = data)
+summary(gam_simple_PRICE)
+
+plot(gam_simple_PRICE)
+
+
+## UTILIZZANDO SOLO ALTEZZA E TRAZIONE RIUSCIAMO AD OTTENERE R-Squared(adj) > 0.8
+gam_simple_CON <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + Drive, data = data)
+summary(gam_simple_CON)
+
+plot(gam_simple_CON)
+
+gam_simple_CON2 <- gam(CONSUMPTION ~ clustering.m2 + s(POWER, bs="cr"), data = data.m2)
+summary(gam_simple_CON2)
+
+gam_simple_CON3 <- gam(CONSUMPTION ~ clustering.w3 + s(POWER, bs="cr"), data = data.w3)
+summary(gam_simple_CON2)
+
+## PROVIAMO A SPIEGARE ANCHE IL RANGE IN FUNZIONE DELLA POTENZA
+gam_simple_RANGE <- gam(RANGE ~ s(POWER, bs="cr") + clustering.m2, data= data)
+summary(gam_simple_RANGE)
+
+# gam_simple_CON3 <- gam(CONSUMPTION ~ clustering.m3, data = data.m3)
+# summary(gam_simple_CON3)
 
 ## da rivedere questo confronto ANOVA (1: non so se le assunzioni vengano rispettate, 2: vale davvero la pena tornare al modello più complesso)
 anova(gam_model2.drive,gam_model.drive,test="F")
@@ -96,7 +130,7 @@ anova(gam_model2.drive,gam_model.drive,test="F")
 ## proviamo a fittare con natural cubic splices
 #model_gam_ns <-   lm(prestige ~ ns(education, df = 3) + ns(income, df = 3), data = Prestige
                      
-pairs(cbind(data$PRICE, data$ACC, data$LENGTH, data$HEIGHT, data$RANGE, data$POWER, data$BATTERY_CAPACITY, data$CARGO_VOL, data$CONSUMPTION), col = data$Drive)
+pairs(cbind(PRICE = data$PRICE, ACC = data$ACC, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT, RANGE = data$RANGE, POWER = data$POWER, BATTERY_CAPACITY = data$BATTERY_CAPACITY, CARGO_VOL = data$CARGO_VOL, CONSUMPTION = data$CONSUMPTION), col = data$Drive)
 summary(lm(PRICE ~ POWER + Drive, data = data))
 summary(lm(RANGE ~ BATTERY_CAPACITY, data = data))
 summary(lm(CONSUMPTION ~ I(sqrt(LENGTH)), data = data))
