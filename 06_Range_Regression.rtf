@@ -1,0 +1,47 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid201\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid3}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12700\viewh8360\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+
+\fs36 ## REGRESSIONE NONLINEARE DI BASE PER LA VARIABILE RANGE\
+\
+Siamo partiti esplorando la relazione tra range e le altre variabili che abbiamo tenuto dopo\
+L\'92analisi del dataset, delle correlazioni e degli outliers (file precedenti).\
+\
+Il risultato \'e8:\
+\
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural\partightenfactor0
+\ls1\ilvl0\cf0 {\listtext	\uc0\u8226 	}Variabili che grossomodo hanno relazione lineare con RANGE: ACC, LENGTH, POWER, BATTERY_CAPACITY (perfetta)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural\partightenfactor0
+\ls2\ilvl0\cf0 {\listtext	\uc0\u8226 	}Variabili in cui un gruppo di outliers che sarebbe identificato come cluster ha un forte effetto leva sulla regressione (cio\'e8 senza loro il coefficiente sarebbe TANTO diverso): HEIGHT, PAYLOAD, CARGO_VOL, CHARGE_SPEED, CONSUMPTION\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural\partightenfactor0
+\ls3\ilvl0\cf0 {\listtext	\uc0\u8226 	}FASTCHARGE SPEED \'e8 come se avesse due cluster con due rette differenti, anche se nello stesso intervallo di RANGE (non sono diversi intervalli, questo complica le cose)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+Primo modello: includo tutte le covariate;\
+Risultato: Drive come categorica non sembra significativa, POWER come continua nemmeno, escludiamole\
+\
+Secondo modello: escludendo quelle prima, provando i tre cluster come aggiunta di variabile categorica (una alla volta eh)\
+Risultato: nessun cluster significativo\
+\
+Terzo modello\
+Risultati: al pelo, ma alla fine dei conti eliminerei anche Charge.Power (categorica) e ACC, cos\'ec da rendere il tutto pi\'f9 snello e semplificare, che \'e8 sempre un bene\
+\
+## FURTHER STEPS\
+\
+Il prossimo passo \'e8 provare anche knn e cose di questo genere o aggiungere covariate a seconda degli intervalli; il dubbio pi\'f9 grande rimane comunque come gestire gli outlier che fanno un sacco leva (due diverse regressioni per i cluster????)\
+\
+\
+}
