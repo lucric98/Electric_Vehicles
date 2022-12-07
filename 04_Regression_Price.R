@@ -213,8 +213,8 @@ summary(gam_PRICE5)
 # summary(gam_simple_CON3)
 # 
 # ## PROVIAMO A SPIEGARE ANCHE IL RANGE IN FUNZIONE DELLA POTENZA
-# gam_simple_RANGE <- gam(RANGE ~ s(BATTERY_CAPACITY, bs="cr") + clustering.m2, data= data)
-# summary(gam_simple_RANGE)
+gam_simple_RANGE <- gam(RANGE ~ s(BATTERY_CAPACITY, bs="cr") + clustering.m2, data= data)
+summary(gam_simple_RANGE)
 # 
 # # gam_simple_CON3 <- gam(CONSUMPTION ~ clustering.m3, data = data.m3)
 # # summary(gam_simple_CON3)
