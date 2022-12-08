@@ -13,7 +13,7 @@ library(cluster)
 B = 10000
 seed = 26111992
 
-# setwd("C:/Users/UTENTE/Downloads/Nonparametric Statistics/Project/Electric_Vehicles")
+#setwd("C:/Users/UTENTE/Downloads/Nonparametric Statistics/Project/Electric_Vehicles")
 
 Vehicles$Seats <- as.factor(Vehicles$Seats)
 Vehicles$Charge.Power <- as.factor(Vehicles$Charge.Power)
@@ -44,6 +44,12 @@ clustering.m2 <- as.factor(cutree(data.em,k=2)-1)
 data.m2 <- data %>% mutate(clustering.m2)
 data.m3 <- data %>% mutate(clustering.m3)
 data.w3 <- data %>% mutate(clustering.w3)
+
+pairs(cbind(CONSUMPTION = data$CONSUMPTION, ACC = data$ACC, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT, RANGE = data$RANGE, POWER = data$POWER, BATTERY_CAPACITY = data$BATTERY_CAPACITY, CARGO_VOL = data$CARGO_VOL, PRICE = data$PRICE), col = data$Drive, pch=16, main = "Drive")
+pairs(cbind(CONSUMPTION = data$CONSUMPTION, ACC = data$ACC, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT, RANGE = data$RANGE, POWER = data$POWER, BATTERY_CAPACITY = data$BATTERY_CAPACITY, CARGO_VOL = data$CARGO_VOL, PRICE = data$PRICE), col = clustering.m2, pch=16, main = "VAN vs CAR")
+pairs(cbind(CONSUMPTION = data$CONSUMPTION, ACC = data$ACC, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT, RANGE = data$RANGE, POWER = data$POWER, BATTERY_CAPACITY = data$BATTERY_CAPACITY, CARGO_VOL = data$CARGO_VOL, PRICE = data$PRICE), col = clustering.m3, pch=16, main = "3 clusters, Mcquitty linkage")
+pairs(cbind(CONSUMPTION = data$CONSUMPTION, ACC = data$ACC, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT, RANGE = data$RANGE, POWER = data$POWER, BATTERY_CAPACITY = data$BATTERY_CAPACITY, CARGO_VOL = data$CARGO_VOL, PRICE = data$PRICE), col = clustering.w3, pch=16, main = "3 clusters, Ward linkage")
+
 
 for (i in 1:12){
   ##check visivi per capire le relazioni tra i vari punti del dataset
@@ -152,3 +158,121 @@ summary(gam_model2.w3)
 plot(gam_model2.m2) # senza drive
 plot(gam_model2.m3)
 plot(gam_model2.w3)
+
+##### NOW NEW APPROACH
+gam_CONSUMPTION <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_CONSUMPTION[[i]] <- gam(CONSUMPTION ~ s(data[,i], bs="cr"), data=data)
+  print(summary(gam_CONSUMPTION[[i]])[10]) 
+  ## HEIGHT dà l'r-squared più alto(0.75), seguito  da charge_speed, acc, payload
+}
+gam_CONSUMPTION <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_CONSUMPTION[[i]] <- gam(CONSUMPTION ~ s(data[,i], bs="cr") + Drive, data=data)
+  print(summary(gam_CONSUMPTION[[i]])[10])
+  ## così tutte aumentano la significatività
+  ## HEIGHT dà l'r-squared più alto, seguito da payload, charge_speed, acc
+}
+gam_CONSUMPTION <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_CONSUMPTION[[i]] <- gam(CONSUMPTION ~ s(data[,i], bs="cr") + clustering.m2, data=data)
+  print(summary(gam_CONSUMPTION[[i]])[10])
+  ## adesso tutte aumentate molto!
+  ## CHARGE_SPEED dà l'r-squared più alto, seguito da price, battery, length
+}
+gam_CONSUMPTION <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_CONSUMPTION[[i]] <- gam(CONSUMPTION ~ s(data[,i], bs="cr") + clustering.m3, data=data)
+  print(summary(gam_CONSUMPTION[[i]])[10])
+  ## anche qui tutte aumentate molto!
+  ## CHARGE_SPEED dà l'r-squared più alto, seguito da price, battery, height
+}
+gam_CONSUMPTION <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_CONSUMPTION[[i]] <- gam(CONSUMPTION ~ s(data[,i], bs="cr") + clustering.w3, data=data)
+  print(summary(gam_CONSUMPTION[[i]])[10])
+  ## anche qui tutte aumentate molto! Insomma clustering si rivela importante
+  ## CHARGE_SPEED e HEIGHT hanno l'r-squared più alto(>0.8), seguiti da price, range
+}
+
+## SMOOTHING SPLINES CON ALTEZZA COME REGRESSORE
+fit_smooth_spline_CV <- with(data, smooth.spline(x = HEIGHT, y = CONSUMPTION,cv = TRUE)) 
+fit_smooth_spline_GCV <- with(data, smooth.spline(x = HEIGHT, y = CONSUMPTION,cv = FALSE)) 
+with(data, plot(HEIGHT, CONSUMPTION, cex =.5, col =" darkgrey ")) 
+lines(fit_smooth_spline_CV,col="red",lwd=2,lty=1) 
+lines(fit_smooth_spline_GCV,col="blue",lwd=2, lty=2) 
+legend(400, 50000, legend=c("CV", "GCV"), col=c("red", "blue"), lty=1:2, cex=0.8)
+
+gam_CONSUMPTION <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr"), data=data)
+
+## CUBIC SPLINES CON ALTEZZA COME REGRESSORE
+new_data <- with(data, data.frame(HEIGHT = seq(range(HEIGHT)[1], range(HEIGHT)[2], by = 0.5)))
+preds <- predict(gam_CONSUMPTION, new_data,se=T) 
+se.bands <- cbind(preds$fit +2* preds$se.fit ,preds$fit -2* preds$se.fit)
+with(data, plot(HEIGHT ,CONSUMPTION ,xlim=range(new_data$HEIGHT),cex =.5, col = clustering.m2)) 
+lines(new_data$HEIGHT,preds$fit ,lwd =2, col =" blue")
+matlines(new_data$HEIGHT, se.bands ,lwd =1, col =" blue",lty =3)
+
+## NATURAL CUBIC SPLINES CON ALTEZZA COME REGRESSIORE
+knots <- quantile(data$HEIGHT,probs=c(0.1,0.3,0.5,0.7,0.9)) 
+boundary_knots <- quantile(data$HEIGHT,probs=c(0.05,0.95))
+
+## NON SO PERCHE' MA MI DA' ERRORE
+model_ns <- lm(CONSUMPTION ~ ns(HEIGHT,knots=knots,Boundary.knots=boundary_knots), data=data) #defaults to three kn ots
+preds <- predict(model_ns, new_data,se=T) 
+se.bands <- cbind(preds$fit +2* preds$se.fit ,preds$fit -2* preds$se.fit)
+with(data, plot(HEIGHT ,CONSUMPTION ,xlim=range(new_data$HEIGHT) ,cex =.5, col =" darkgrey " )) 
+lines(new_data$HEIGHT,preds$fit ,lwd =2, col =" blue")
+matlines(new_data$HEIGHT, se.bands ,lwd =1, col =" blue",lty =3)
+knots_pred=predict(model_ns,list(HEIGHT=knots)) 
+points(knots,knots_pred, col='blue',pch=19) 
+boundary_pred <- predict(model_ns,list(HEIGHT=boundary_knots))
+points(boundary_knots,boundary_pred,col='red',pch=19) 
+abline(v = knots, lty=3, col="blue") 
+abline(v = boundary_knots, lty=3, col="red")
+
+## LET'S FIT SOME GOOD MODELS
+scaled_data <- data
+scaled_data[,1:12] <- scale(data[,1:12])
+## MODELLO 1: SENZA CATEGORICGHE GIA' SOPRA 0.8
+gam_CONSUMPTION1 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr"), data=scaled_data)
+summary(gam_CONSUMPTION1)
+## MODELLO 2: CON INTERAZIONE MIGLIORA LEGGERMENTE
+gam_CONSUMPTION2 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + s(I(HEIGHT*CHARGE_SPEED),bs="cr"), data=scaled_data)
+summary(gam_CONSUMPTION2)
+## MODELLO 3: modello 1 + Drive MIGLIORA LEGGERMENTE (similie al modello 2)
+gam_CONSUMPTION3 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + Drive, data=scaled_data)
+summary(gam_CONSUMPTION3)
+## MODELLO 4: Drive e INTERAZIONE INSIEME NON VANNO A MIGLIORARE
+gam_CONSUMPTION4 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + s(I(HEIGHT*CHARGE_SPEED),bs="cr") + Drive, data=scaled_data)
+summary(gam_CONSUMPTION4)
+## MODELLO 5: MIGLIORA LEGGERMENTE
+gam_CONSUMPTION5 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + s(I(HEIGHT*CHARGE_SPEED),bs="cr") + clustering.w3, data=scaled_data)
+summary(gam_CONSUMPTION5)
+## MODELLO 6: MOLTO BENE
+gam_CONSUMPTION6 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(HEIGHT*CHARGE_SPEED),bs="cr") + clustering.w3, data=scaled_data)
+summary(gam_CONSUMPTION6)
+## MODELLO 7: BENE 
+gam_CONSUMPTION7 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_CONSUMPTION7)
+## MODELLO 8: L'INTERAZIONE CHARGE_SPEED/PRICE RISULA MOLTO SIGNIFICATIVA!
+gam_CONSUMPTION8 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_CONSUMPTION8)
+## MODELLO 9: OTTIMO!
+gam_CONSUMPTION9 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr") + clustering.w3, data=scaled_data)
+summary(gam_CONSUMPTION9)
+## MODELLO 10: OTTIMO!
+gam_CONSUMPTION10 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr") + clustering.w3, data=scaled_data)
+summary(gam_CONSUMPTION10)
+## MODELLO 11: SENZA CLUSTERING COMUNQUE ARRIVIAMO A 0.9 
+gam_CONSUMPTION11 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr"), data=scaled_data)
+summary(gam_CONSUMPTION11)
+## MODELLO 12: CLUSTERING M.3 SIMILE A W.3
+gam_CONSUMPTION12 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr") + clustering.m3, data=scaled_data)
+summary(gam_CONSUMPTION12)
+## MODELLO 13: CLIUSTERING M.2 SIMILE AGLI ALTRI
+gam_CONSUMPTION13 <- gam(CONSUMPTION ~ s(CHARGE_SPEED, bs="cr") + s(PRICE, bs="cr") + s(I(CHARGE_SPEED*PRICE),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_CONSUMPTION13)
+
+##### MIGLIOR MODELLO CON PRICE, CHARGE_SPEED + INTERAZIONE,
+##### AGGIUNGENDO CLUSTERING SI PASSA DA 0.9 A CIRCA 0.96
