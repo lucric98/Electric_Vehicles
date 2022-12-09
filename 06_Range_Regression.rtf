@@ -39,9 +39,12 @@ Risultato: nessun cluster significativo\
 Terzo modello\
 Risultati: al pelo, ma alla fine dei conti eliminerei anche Charge.Power (categorica) e ACC, cos\'ec da rendere il tutto pi\'f9 snello e semplificare, che \'e8 sempre un bene\
 \
-## FURTHER STEPS\
+## APPROCCIO NUOVO\
 \
-Il prossimo passo \'e8 provare anche knn e cose di questo genere o aggiungere covariate a seconda degli intervalli; il dubbio pi\'f9 grande rimane comunque come gestire gli outlier che fanno un sacco leva (due diverse regressioni per i cluster????)\
+Provare a vedere quanto ogni singola variabile spiega RANGE.\
+Battery capacit\'e0 e charge speed sono molto buoni MA non possiamo tenerli (direi) perch\'e9 in macchine non elettriche non lo troverei mai.\
+Tengo POWER e ACC (anche per combustibili tradizionali li trovo) e anche Drive e cl1 e cl3 sono significative come categoriche.\
+I modelli alla fine mi paiono decenti (R adj sta sempre tra 0.67 e 0.69) usano sempre massimo due continue  e loro interaction e una categorica, che mi sembra una buona approssimazione, abbastanza semplice, per il momento.\
 \
 \
 }
