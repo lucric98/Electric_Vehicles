@@ -177,4 +177,4 @@ summary(gam_RANGE3)
 gam_RANGE4 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + clustering.w3, data=scaled_data)
 summary(gam_RANGE4)
 
-
+# prva
