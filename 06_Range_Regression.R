@@ -112,4 +112,69 @@ gam_model <- gam(RANGE ~ s(LENGTH,bs="cr") + s(HEIGHT,bs="cr") + s(PAYLOAD,bs="c
                  + s(BATTERY_CAPACITY,bs="cr")+ s(FASTCHARGE_SPEED,bs="cr") + Seats, data=data.m2)
 summary(gam_model)
 
+#### CAMBIO APPROCCIO
+gam_RANGE <- vector(mode = "list", length = 12)
+for (i in 2:12){
+  gam_RANGE[[i]] <- gam(RANGE ~ s(data[,i], bs="cr"), data=data)
+  print(summary(gam_RANGE[[i]])[10])
+}
+#SAREBBERO BATTERY CAPACITY E CHARGE SPEED; ma vanno bene?
+# secondo me meglio POWER e ACC, più bassi ma confrontabili con il non elettrico
+gam_RANGED <- vector(mode = "list", length = 12)
+for (i in 2:12){
+  gam_RANGED[[i]] <- gam(RANGE ~ s(data[,i], bs="cr") + Drive, data=data)
+  print(summary(gam_RANGED[[i]])[10]) 
+}
+#Drive alza abbbastanza: tengo sempre POWER e ACC come i migliori risultati, Drive sembra 
+# una buona categorica e alza soprattutto le fisiche (0.3->0.5)
+gam_RANGEC1 <- vector(mode = "list", length = 12)
+for (i in 2:12){
+  gam_RANGEC1[[i]] <- gam(RANGE ~ s(data[,i], bs="cr") + as.factor(clustering.m2), data=data)
+  print(summary(gam_RANGEC1[[i]])[10]) 
+}
+# migliora il risultato, ma drive mi pare ancora meglio
+gam_RANGEC2 <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_RANGEC2[[i]] <- gam(PRICE ~ s(data[,i], bs="cr") + clustering.m3, data=data)
+  print(summary(gam_RANGEC2[[i]])[10]) 
+}
+# questo brutto brutto
+gam_RANGEC3 <- vector(mode = "list", length = 12)
+for (i in 1:12){
+  gam_RANGEC3[[i]] <- gam(PRICE ~ s(data[,i], bs="cr") + clustering.w3, data=data)
+  print(summary(gam_RANGEC3[[i]])[10]) 
+}
+# CL1 o CL3 i migliori a disposizione
+
+
+## SMOOTHING SPLINES CON POTENZA COME REGRESSORE
+fit_smooth_spline_CV <- with(data, smooth.spline(x = POWER, y = RANGE,cv = TRUE)) 
+fit_smooth_spline_GCV <- with(data, smooth.spline(x = POWER, y = RANGE,cv = FALSE)) 
+with(data, plot(POWER, RANGE, cex =.5, col =" darkgrey ")) 
+lines(fit_smooth_spline_CV,col="red",lwd=2,lty=1) 
+lines(fit_smooth_spline_GCV,col="blue",lwd=2, lty=2) 
+
+## SMOOTHING SPLINES CON ACC COME REGRESSORE
+fit_smooth_spline_CV <- with(data, smooth.spline(x = ACC, y = RANGE,cv = TRUE)) 
+fit_smooth_spline_GCV <- with(data, smooth.spline(x = ACC, y = RANGE,cv = FALSE)) 
+with(data, plot(ACC, RANGE, cex =.5, col =" darkgrey ")) 
+lines(fit_smooth_spline_CV,col="red",lwd=2,lty=1) 
+lines(fit_smooth_spline_GCV,col="blue",lwd=2, lty=2) 
+
+## FITTIAMO ALCUNI MODELLI CHE POSSONO ESSERE MOLTO MOLTO BUONI
+scaled_data <- data
+scaled_data[,1:12] <- scale(data[,1:12])
+## MODELLO 1: 0.69 buono
+gam_RANGE1 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_RANGE1)
+## MODELLO 2(senza interaction): 0.67, posso tenere questo a sto punto
+gam_RANGE2 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_RANGE2)
+## MODELLO 3 senza cluster: 0.67
+gam_RANGE3 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr"), data=scaled_data)
+summary(gam_RANGE3)
+## MODELLO 4: MOLTO BUONO 0.69
+gam_RANGE4 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + clustering.w3, data=scaled_data)
+summary(gam_RANGE4)
+
 
