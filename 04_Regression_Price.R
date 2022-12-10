@@ -178,8 +178,11 @@ summary(gam_PRICE1)
 ## MODELLO 2: MOLTO BUONO!
 gam_PRICE2 <- gam(PRICE ~ s(ACC, bs="cr") + s(HEIGHT, bs="cr") + clustering.m3, data=scaled_data)
 summary(gam_PRICE2)
+gam_PRICE2.1 <- gam(PRICE ~ s(ACC, bs="cr") + s(HEIGHT, bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_PRICE2.1)
+
 ## MODELLO 3: MOLTO BUONO!
-gam_PRICE3 <- gam(PRICE ~ s(LENGTH, bs="cr") + s(POWER,bs="cr") + clustering.m2, data=scaled_data)
+gam_PRICE3 <- gam(PRICE ~ s(LENGTH, bs="cr") + s(ACC,bs="cr") + clustering.w3, data=scaled_data)
 summary(gam_PRICE3)
 ## MODELLO 4: MOLTO BUONO
 gam_PRICE4 <- gam(PRICE ~ s(LENGTH, bs="cr") + s(POWER,bs="cr") + s(I(LENGTH*POWER),bs="cr"), data=scaled_data)
