@@ -173,8 +173,9 @@ summary(gam_RANGE2)
 ## MODELLO 3 senza cluster: 0.67
 gam_RANGE3 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr"), data=scaled_data)
 summary(gam_RANGE3)
-## MODELLO 4: MOLTO BUONO 0.69
+## MODELLO 4: cluster 3 0.69
 gam_RANGE4 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + clustering.w3, data=scaled_data)
 summary(gam_RANGE4)
-
-# prva
+## MODELLO 5: con Drive 0.69
+gam_RANGE1 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + Drive, data=scaled_data)
+summary(gam_RANGE1)
