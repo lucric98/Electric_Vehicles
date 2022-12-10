@@ -234,3 +234,20 @@ plot(data$CONSUMPTION, main="3 clusters, ward linkage", col = clustering.w3,pch=
 
 perm_anova(data$PRICE,clustering.m3)
 summary(aov(data$HEIGHT~clustering.m2 ))
+library(GGally)
+data[,1:12] <- scale(data[,1:12])
+data_clusterpairs<- cbind(data,clustering.m2)
+colnames(data_clusterpairs)[16] <- c("C2")
+data_clusterpairs$C2<-factor(data_clusterpairs$C2, levels = 1:2, labels = c("Car","Van") )
+data_clusterpairs <- data_clusterpairs[,c(3,5,10,11,16)]
+colnames(data_clusterpairs)<-c("Height","Cargo_Vol","Price","Consumption","Cluster")
+ggpairs(data_clusterpairs[,1:4], aes(col=data_clusterpairs[,5])) + theme(text=element_text(size=15))
+
+data_clusterplot<- cbind(data,clustering.w3)
+colnames(data_clusterplot)[16] <- c("C3")
+data_clusterplot$C3<-factor(data_clusterplot$C3, levels = 1:3, labels = c("K1","K2","K3") )
+ggplot(data = data_clusterplot, aes(x=data_clusterplot$ACC, y=data_clusterplot$HEIGHT,col = data_clusterplot$C3)) +
+  geom_point(size = 4) + theme(text=element_text(size=40)) + labs(colour = "Cluster")+
+  labs(x = "Acceleration") + labs(y = "Height")
+
+

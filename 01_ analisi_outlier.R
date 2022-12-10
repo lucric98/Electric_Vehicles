@@ -232,7 +232,6 @@ physics <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, TOP_SPE
 bagplot.pairs(physics)
 ## variabili da tenere: ACCELERATION, LENGTH, HEIGHT. Dopo di ché bisogna fare un certo tipo di analisi per decidere quale variabile utilizzare tra GVWR, PAYLOAD e CARGO_VOLUME. Probabilmete GVWR è la variabile che introduce meno informazione, ma meno soggetta al problema dei furgoni. Le altre due  presentano un comportamente simile, come le analiziamo?
 pairs(physics)
-
 battery <- as.data.frame(cbind(CHARGE_SPEED = Vehicles$Charge.Speed, BATTERY_CAPACITY = Vehicles$Battery.Capacity, FASTCHARGE_SPEED = Vehicles$Fastcharge.Speed))
 bagplot.pairs(battery)
 ## queste variabili non sono molto correlate, però CHARGE SPEED presenta outlier piuttosto pesanti, forse varrebbe la pena rimuoverla e tenere le altre due?
@@ -247,6 +246,12 @@ data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = V
                            PRICE = Vehicles$Price, CONSUMPTION = Vehicles$Consumption, 
                            POWER = Vehicles$Total.Power))
 pairs(data)
+library(corrplot)
+x11(width=10,height=10)
+R <- cor(data[,1:12])
+corrplot(R, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, tl.cex = 0.01,main="Correlazione")
+
 bagplot.pairs(data)
 
 Vehicles <- Vehicles %>% mutate(factors) 
@@ -355,5 +360,8 @@ for(i in 1:15){
   plot(data[,i], main = 'Gower, Ward linkage', col=cluster.ew3+1, pch=16, ylab = colnames(data[i]))
 }
 ## vorrei far vedere questo risultato a cappozzo per capire se sia meglio tenere due o 3 clusters. a me sembra che il risultato migliore in questa situazione sia dato dal ward linkage, che ci permette di distinguere le macchine in 3 categorie (vedi accelerazione, però non capisco se sia utilizzabile per davvero)
+df <- cbind(Vehicles$Height,Vehicles$Length)
 
+bagplot(df, main = "Boxplot (Length vs Height)", ylab = "Length", xlab = "Height")
+depthContour(df,depth_params = list(method='Tukey'))
 
