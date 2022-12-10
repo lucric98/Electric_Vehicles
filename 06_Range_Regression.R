@@ -179,3 +179,15 @@ summary(gam_RANGE4)
 ## MODELLO 5: con Drive 0.69
 gam_RANGE1 <- gam(RANGE ~ s(POWER, bs="cr") + s(ACC, bs="cr") + s(I(POWER*ACC),bs="cr") + Drive, data=scaled_data)
 summary(gam_RANGE1)
+
+### PASSO A CARATTERISTICHE FISICHE: MOLTO MEGLIO! (anche le variabili le preferisco)
+#Modello 1: tutto significativo, 0.78
+gam_RANGE_1 <- gam(RANGE ~ s(HEIGHT, bs="cr") + s(LENGTH, bs="cr") + s(I(HEIGHT*LENGTH),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_RANGE_1)
+#Modello 2: 0.76
+gam_RANGE_2 <- gam(RANGE~ s(POWER, bs="cr") + s(LENGTH, bs="cr") + s(I(POWER*LENGTH),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_RANGE_2)
+#MODELLO MIGLIORE, 0.8 teniamo questo, ci piace lui per le variabili, il payload per il range
+gam_RANGE_3 <- gam(RANGE ~ PAYLOAD + s(LENGTH, bs="cr") + s(I(PAYLOAD*LENGTH),bs="cr") + clustering.m3, data=scaled_data)
+summary(gam_RANGE_3)
+
