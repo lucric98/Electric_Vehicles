@@ -9,7 +9,7 @@ Possiamo aggiungere per step successivi altri costi (stimare queste predizioni t
 Step successivi => complicare il modello introducendo altri costi della macchina (tagliando/revisione stimati sempre tramite intervallo di conformal)
 
 
-A. [ ] Mi piacerebbe usare la variabile Vehicle Fuel Equivalent in qualche modo. come la potremo usare?
-B. [ ] Mi piacerebbe tenere in considerazione anche le variabili battery_capacity e charge_speed --> capire quale macchina da un punto di vista della batteria conviene acquistare (cercare dati sui pannelli fotovoltaici: quale potenza si riesce a ricavare dai pannelli, e quindi quale è la batteria che può essere ricaricata meglio?)
+A. Mi piacerebbe usare la variabile Vehicle Fuel Equivalent in qualche modo. come la potremo usare?
+B. Mi piacerebbe tenere in considerazione anche le variabili battery_capacity e charge_speed --> capire quale macchina da un punto di vista della batteria conviene acquistare (cercare dati sui pannelli fotovoltaici: quale potenza si riesce a ricavare dai pannelli, e quindi quale è la batteria che può essere ricaricata meglio?)
 
 TRARRE CONCLUSIONI RIGUARDO TUTTO!
