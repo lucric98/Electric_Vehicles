@@ -7,6 +7,7 @@ Possiamo aggiungere per step successivi altri costi (stimare queste predizioni t
 2. [ ] Numero di kilometri percorsi da una macchina durante la sua vita
 3. [ ] Capire come sommare tutte le varianze per ottenere l'intervallod i confidenza 5%-95%.
 4. [ ] Raccogliere dati che servono! (QUESTO E' IL PRIMO DA PORTARE A TERMINE)
+
 Step successivi => complicare il modello introducendo altri costi della macchina (tagliando/revisione stimati sempre tramite intervallo di conformal)
 
 - Mi piacerebbe usare la variabile Vehicle Fuel Equivalent in qualche modo. come la potremo usare?
