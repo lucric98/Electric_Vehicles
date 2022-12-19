@@ -4,9 +4,12 @@ Abbiamo modelli per predire prezzo e altre informazioni avendo solo caratteristi
 La regressione ci fornisce _intervalli di confidenza con la deviazione standard per quanto riguarda il prezzo_.
 Possiamo aggiungere per step successivi altri costi (stimare queste predizioni tramite intervalli di conformal prediction ad esempio per il numero di kilometri e il costo dell'elettricità visto che sono due fattori importanti):
 1. [ ] Stimare costo elettricità
-2. [ ] Numero di kilometri percorsi da una macchina durante la sua vita
-3. [ ] Capire come sommare tutte le varianze per ottenere l'intervallod i confidenza 5%-95%.
-4. [ ] Raccogliere dati che servono! (QUESTO E' IL PRIMO DA PORTARE A TERMINE)
+3. [ ] Numero di kilometri percorsi da una macchina durante la sua vita (macchina con vita breve, macchina con vita media e macchiina con vita lunga)
+4. [ ] Capire come sommare tutte le varianze per ottenere l'intervallod i confidenza 5%-95%
+5. [ ] Raccogliere dati che servono! (QUESTO E' IL PRIMO DA PORTARE A TERMINE)
+6. [ ] OBIETTIVO --> ottenere una sorta di prezzo al kilometro per ogni macchina elettrica, di modo che capiamo quale ci convenga acquistare
+7. [ ] Analisi Residui per case automobilistiche (valutare rapporto qualità/prezzo) --> consiglio casa!
+8. [ ] Dati macchina non elettriche e fare confronti --> 
 
 Step successivi => complicare il modello introducendo altri costi della macchina (tagliando/revisione stimati sempre tramite intervallo di conformal)
 
