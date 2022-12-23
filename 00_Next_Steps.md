@@ -3,7 +3,7 @@ Stimare il costo **COMPLETO** di una macchina elettrica per una famiglia. Un'ana
 Abbiamo modelli per predire prezzo e altre informazioni avendo solo caratteristiche fisiche della macchina. => Questo è molto importante perché una famiglia potrebbe partire dalle caratteristiche fisiche della macchina per capire il costo complessivo dell'automobile!
 La regressione ci fornisce _intervalli di confidenza con la deviazione standard per quanto riguarda il prezzo_.
 Possiamo aggiungere per step successivi altri costi (stimare queste predizioni tramite intervalli di conformal prediction ad esempio per il numero di kilometri e il costo dell'elettricità visto che sono due fattori importanti):
-1. [ ] Stimare costo elettricità
+1. [ ] Stimare costo elettricità -> usare bootstrap intervals per la media della time series?
 3. [ ] Numero di kilometri percorsi da una macchina durante la sua vita (macchina con vita breve, macchina con vita media e macchiina con vita lunga)
 4. [ ] Capire come sommare tutte le varianze per ottenere l'intervallod i confidenza 5%-95%
 5. [ ] Raccogliere dati che servono! (QUESTO E' IL PRIMO DA PORTARE A TERMINE)
