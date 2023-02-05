@@ -7,7 +7,6 @@ Possiamo aggiungere per step successivi altri costi (stimare queste predizioni t
 2. [ ] Numero di kilometri percorsi da una macchina durante la sua vita (macchina con vita breve, macchina con vita media e macchiina con vita lunga)
 3. [ ] Raccogliere dati che servono! (QUESTO E' IL PRIMO DA PORTARE A TERMINE)
 4. [ ] In questo modo possiamo calcolare delle regioni di conformal prediction (usando PRICE e CONSUMPTION per ogni veicolo, possiamo identificare delle regioni di conformal prediction per il prezzo totale di un'automobile qualsiasi, usando i diversi profili di LCOC e il numero di kilometri percorsi da un'automobile durante la sua vita). Siccome per ogni profilo di LCOC e numero di kilometri di vita di un veicolo elettrico avremo a disposizione una deviazione standard, le regioni di confidenza che possiamo ricavare sono molte. Dobbiamo concentrarci su alcune! 
-5. [ ] OBIETTIVO --> ottenere una sorta di prezzo al kilometro per ogni macchina elettrica, di modo che capiamo quale ci convenga acquistare. 
 6. [ ] Analisi Residui per case automobilistiche (valutare rapporto qualità/prezzo) --> consiglio casa!
 7. [ ] Scrivere Report
 8. [ ] Fare grafici
