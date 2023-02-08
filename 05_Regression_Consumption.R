@@ -283,6 +283,14 @@ summary(gam_CONSUMPTION15)
 ## MODELLO 16: RAGGIUNGO 0.9
 gam_CONSUMPTION16 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(POWER, bs="cr") + s(LENGTH, bs="cr") + s(I(HEIGHT*LENGTH),bs="cr"), data=scaled_data)
 summary(gam_CONSUMPTION16)
+## MODELLO 17:
+gam_CONSUMPTION16 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(LENGTH, bs="cr") + s(I(HEIGHT*LENGTH),bs="cr") + Drive, data=scaled_data)
+summary(gam_CONSUMPTION16)
+
+## MODELLO 18
+gam_CONSUMPTION17 <- gam(CONSUMPTION ~ s(HEIGHT, bs="cr") + s(BATTERY_CAPACITY, bs="cr") + s(I(HEIGHT*BATTERY_CAPACITY),bs="cr") + Drive, data=scaled_data)
+summary(gam_CONSUMPTION17)
+
 
 ##### MIGLIOR MODELLO CON PRICE E CHARGE_SPEED + INTERAZIONE, 
 ##### AGGIUNGENDO CLUSTERING SI PASSA DA 0.9 A CIRCA 0.96
