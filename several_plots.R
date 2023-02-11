@@ -1,3 +1,4 @@
+
 library(ggplot2)
 library(DepthProc)
 library(aplpack)
@@ -20,6 +21,14 @@ Vehicles$Drive <- as.factor(Vehicles$Drive)
 Vehicles$Available <- as.factor(Vehicles$Available)
 
 ### BOXPLOTS
+
+#better visualization
+ggplot(data = Vehicles, aes(x = Drive, y = Price, fill = Drive)) + 
+  geom_boxplot() + 
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle("Box Plot of Different Drive") +
+  labs(x = "Drive", y = "Price") + 
+  theme_classic()
 
 boxplot(Vehicles$Combined...Cold.Weather)
 which(Vehicles$Combined...Cold.Weather %in% boxplot.stats(Vehicles$Combined...Cold.Weather)$out)
