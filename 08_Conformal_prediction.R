@@ -110,7 +110,7 @@ total_pred_grid <- rbind(grid,grid_van)
 # MODELLI GAMs per prezzo e CONSUMPTION
 scaled_data <- data
 scaled_data$Van <- as.factor(clustering.m2)
-# scaled_data[,1:12] <- scale(data[,1:12])
+#scaled_data[,1:12] <- scale(data[,1:12])
 ## predico prezzo
 PRICE_model <- gam(PRICE ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + Van + Drive, data=scaled_data)
 summary(PRICE_model)
@@ -122,12 +122,12 @@ summary(CONSUMPTION_model)
 
 pred_CONSUMPTION <- predict(CONSUMPTION_model,newdata=total_pred_grid)
 
-# TOTAL_PRICE = PRICE + CONSUMPTION\*KM_LIFE*LCOC
+# TOTAL_PRICE = PRICE + CONSUMPTION (Wh/km) *KM_LIFE (km) *LCOC (€/KWh)
 
 # KM_LIFE = VITA_BATTERIA*KM_ANNUI 
 # KM_ANNUI <- c(10000,13220,20000)
 # VITA_BATTERIA <- c(8,12,17)
-# LCOC = Usare dati file excel
+# LCOC = Usare dati file excel (€/KWh)
 ## AVERAGE_USER: 0.284, 0.330, 0.375
 ## WALLBOX USER: 0.317, 0.363, 0.408
 ## WALLBOX USER WITH PV: 0.285, 0.323, 0.360
@@ -135,13 +135,15 @@ pred_CONSUMPTION <- predict(CONSUMPTION_model,newdata=total_pred_grid)
 ## SOCKET USER: 0.182, 0.228, 0.273	
 
 ## queste variabili vanno settate facendo considerando diverse situazioni!
-km_life <- 
-lcoc <- 
+km_life <- 12*20000
+lcoc <- 0.323/1000
 
-tot_price.grid <- pred_PRICE + pred_CONSUMPTION*km_life*lcoc
+new_data <- data.frame(HEIGHT = 1500, LENGTH = 4500, Drive = "Front", Van = "1")
+
+tot_price.grid <- data$PRICE + data$CONSUMPTION*km_life*lcoc
 
 ## definire un punto per il quale si vuole calcolare l'intervallo di predizione
-x.obs <- 
+x.obs <- 100000
 n <- length(x.obs)
 
 ## se scegliamo di utilizzare questa funzione è necessario definire una non-conformity measure (come la scegliamo?)
@@ -149,8 +151,8 @@ wrapper_full=function(grid_point){
   
   x.obs.aug=c(grid_point,x.obs)
   #Come definiamo la non-conformity measure
-  #mu=mean(x.obs.aug)     # WHY ISN'T IT REMOVING THE ith OBSERVATION?
-  #ncm=abs(mu - x.obs.aug)  
+  mu=mean(x.obs.aug)     # WHY ISN'T IT REMOVING THE ith OBSERVATION?
+  ncm=abs(mu - x.obs.aug)  
   sum((ncm[-1]>=ncm[1]))/(n+1)  # first obs refers to grid_point
   
 }
