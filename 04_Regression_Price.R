@@ -187,9 +187,12 @@ summary(gam_PRICE3)
 ## MODELLO 4: MOLTO BUONO
 gam_PRICE4 <- gam(PRICE ~ s(LENGTH, bs="cr") + s(POWER,bs="cr") + s(I(LENGTH*POWER),bs="cr"), data=scaled_data)
 summary(gam_PRICE4)
-## MODELLO 4: MOLTO BUONO!
+## MODELLO 5: MOLTO BUONO!
 gam_PRICE5 <- gam(PRICE ~ s(BATTERY_CAPACITY, bs="cr") + s(POWER,bs="cr") + clustering.m2, data=scaled_data)
 summary(gam_PRICE5)
+## MODELLO 6
+gam_PRICE6 <- gam(PRICE ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + clustering.m2, data=scaled_data)
+summary(gam_PRICE6)
 
 # gam_PRICE1 <- gam(PRICE ~ bs(POWER, degree = 3, df = 8) + bs(HEIGHT, degree = 3, df = 7) + s(I(POWER*HEIGHT),bs="cr") + clustering.m2, data=scaled_data)
 # summary(gam_PRICE1)
