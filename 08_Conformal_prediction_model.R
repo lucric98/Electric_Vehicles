@@ -32,15 +32,7 @@ data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = V
 Vehicles <- Vehicles %>% mutate(factors) 
 #riaggiungo le variabili categoriche
 data <- data %>% mutate(factors)
-
 data <- na.omit(data)
-
-########### TOTAL_PRICE = PRICE + CONSUMPTION\*KM_LIFE*LCOC
-
-# - PRICE <- Obtained thanks to Conformal Prediction thanks to our model
-# - CONSUMPTION <- Obtained thanks to Conformal Prediction thanks to our model
-# - KM_LIFE <- Life of the electric vehicle battery expressed in kilometers. Il ragionamento che facciamo per ottenere questo parametro è il seguente: abbiamo utilizzato la legge di decadimento temporale per la batteria di un veicolo elettrico accoppiata con i dati di decadimento finora osservati in alcune automobili (manually collected). Uno volta determinato il decadimento temporale (in anni) abbiamo definito 3 profili di utilizzo (in base al numero di kilometri che vengono percorsi da un'automobile in un determinato anno, visto che normalmente un'automobile non viene utilizzata per milioni di kilometri in un determinato anno)
-# - LCOC <- Levelized costs of charging . Questo parametro si basa sul risultato di un articolo (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9458728/#CR7) e si basa sul fatto che per stimare il costo di ricarica di un veicolo elettrico non è sufficiente stimare il costo dell'elettricità perché ci sono molti fattori che entrano in gioco in questa stima. Quindi ci rifacciamo ad un'analisi già effettuata che ci garantisce 4 profili di costo di ricarica per la macchina elettrica in germania.
 
 seed = 26111992
 ## CLUSTERING
@@ -48,40 +40,12 @@ data.e <- daisy(data,metric = "gower")
 data.em <- hclust(data.e, method = "mcquitty")
 clustering.m2 <- cutree(data.em,k=2)
 
-########### APPLY CONFORMAL PREDICTION - Versione 1 - use the data and the model at our disposal
-X <- data.frame(PRICE = data$PRICE, CONSUMPTION = data$CONSUMPTION)
-#X <- scale(X)
-n <- dim(X)[1]
-wrapper_multi_conf=function(test_point){
-  
-  newdata=rbind(test_point,X)
-  # L^2 norm
-  #depth_surface_vec=rowSums(t(t(newdata)-colMeans(newdata))^2) 
-  # mahalanobis
-  depth_surface_vec= mahalanobis(newdata,colMeans(newdata),cov = cov(newdata))
-  
-  sum(depth_surface_vec[-1]>=depth_surface_vec[1])/(n+1)
-}
+########### TOTAL_PRICE = PRICE + CONSUMPTION\*KM_LIFE*LCOC
 
-test_grid_x <- seq(min(X[,1]) - 0.05*diff(range(X[,1])), 
-                   max(X[,1]) + 0.05*diff(range(X[,1])), 
-                   length = 400)
-test_grid_y <- seq(min(X[,2]) - 0.05*diff(range(X[,2])), 
-                   max(X[,2]) + 0.05*diff(range(X[,2])), 
-                   length = 400)
-xy_surface=expand.grid(test_grid_x,test_grid_y)
-
-p.value=pbapply(xy_surface,1,wrapper_multi_conf)
-
-data_plot=cbind(p.value,xy_surface)
-alpha <- 0.1
-p_set=xy_surface[p.value>alpha,]
-poly_points=p_set[chull(p_set),]
-## Conformal prediction region per prezzo e consumption (non so a cosa possa servire ma potrebbe tornarci utile)
-ggplot() + 
-  geom_tile(data=data_plot, aes(Var1, Var2, fill= p.value)) +
-  geom_point(data=data.frame(X), aes(PRICE, CONSUMPTION)) + 
-  geom_polygon(data=poly_points,aes(Var1,Var2),color='red',size=1,alpha=alpha)
+# - PRICE <- Obtained thanks to Conformal Prediction thanks to our model
+# - CONSUMPTION <- Obtained thanks to Conformal Prediction thanks to our model
+# - KM_LIFE <- Life of the electric vehicle battery expressed in kilometers. Il ragionamento che facciamo per ottenere questo parametro è il seguente: abbiamo utilizzato la legge di decadimento temporale per la batteria di un veicolo elettrico accoppiata con i dati di decadimento finora osservati in alcune automobili (manually collected). Uno volta determinato il decadimento temporale (in anni) abbiamo definito 3 profili di utilizzo (in base al numero di kilometri che vengono percorsi da un'automobile in un determinato anno, visto che normalmente un'automobile non viene utilizzata per milioni di kilometri in un determinato anno)
+# - LCOC <- Levelized costs of charging . Questo parametro si basa sul risultato di un articolo (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9458728/#CR7) e si basa sul fatto che per stimare il costo di ricarica di un veicolo elettrico non è sufficiente stimare il costo dell'elettricità perché ci sono molti fattori che entrano in gioco in questa stima. Quindi ci rifacciamo ad un'analisi già effettuata che ci garantisce 4 profili di costo di ricarica per la macchina elettrica in germania.
 
 ### Strategia: a partire da due caratteristiche fisica (come altezza e lunghezza, trazione e distinzione Van/no van) proviamo a costruire intervalli di conformal prediction per il prezzo totale dell'automobile
 
@@ -92,32 +56,32 @@ plot(Vehicles$Price,Vehicles$Consumption,col=Vehicles$Drive)
 
 ## se voglio predire l'altezza delle macchine devo arrivare fino all'auto più alta, tralasciando i furgoni
 # GRIGLIA PER LE AUTOMOBILI
-length.grid <- seq(min(Vehicles$Length), max(Vehicles$Length), length = 200)
-height.grid <- seq(min(Vehicles$Height), max(Vehicles$Height[Vehicles$Height<1800]), length = 200)
+length.grid <- seq(min(Vehicles$Length), max(Vehicles$Length), length = 50)
+height.grid <- seq(min(Vehicles$Height), max(Vehicles$Height[Vehicles$Height<1800]), length = 50)
 
 grid <- expand.grid(LENGTH = length.grid, HEIGHT = height.grid, Drive = c("Front", "Rear","AWD"), Van="1")
 # GRIGLIA PER I VAN
 length.grid_van <- seq(min(Vehicles$Length[Vehicles$Height>1800]),
                        max(Vehicles$Length[Vehicles$Height>1800]),
-                       length = 100)
+                       length = 20)
 height.grid_van <- seq(min(Vehicles$Height[Vehicles$Height>1800]),
                        max(Vehicles$Height[Vehicles$Height>1800]),
-                       length = 100)
+                       length = 20)
 grid_van <- expand.grid(LENGTH = length.grid_van, HEIGHT = height.grid_van, Drive = c("Front"), Van="2")
 # GRIGLIA TOTALE
 total_pred_grid <- rbind(grid,grid_van)
+n <- dim(total_pred_grid)[1]
 
 # MODELLI GAMs per prezzo e CONSUMPTION
-scaled_data <- data
-scaled_data$Van <- as.factor(clustering.m2)
-#scaled_data[,1:12] <- scale(data[,1:12])
+data$Van <- as.factor(clustering.m2)
+
 ## predico prezzo
-PRICE_model <- gam(PRICE ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + Van + Drive, data=scaled_data)
+PRICE_model <- gam(PRICE ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + Van + Drive, data=data)
 summary(PRICE_model)
 
 pred_PRICE <- predict(PRICE_model,newdata=total_pred_grid)
 ## predico consumption
-CONSUMPTION_model <- gam(CONSUMPTION ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + Van + Drive, data=scaled_data)
+CONSUMPTION_model <- gam(CONSUMPTION ~ s(LENGTH, bs="cr") + s(HEIGHT,bs="cr") + s(I(LENGTH*HEIGHT),bs="cr") + Van + Drive, data=data)
 summary(CONSUMPTION_model)
 
 pred_CONSUMPTION <- predict(CONSUMPTION_model,newdata=total_pred_grid)
@@ -146,41 +110,8 @@ tot_price.grid <- data$PRICE + data$CONSUMPTION*km_life*lcoc
 x.obs <- 100000
 n <- length(x.obs)
 
-## se scegliamo di utilizzare questa funzione è necessario definire una non-conformity measure (come la scegliamo?)
-wrapper_full=function(grid_point){
-  
-  x.obs.aug=c(grid_point,x.obs)
-  #Come definiamo la non-conformity measure
-  mu=mean(x.obs.aug)     # WHY ISN'T IT REMOVING THE ith OBSERVATION?
-  ncm=abs(mu - x.obs.aug)  
-  sum((ncm[-1]>=ncm[1]))/(n+1)  # first obs refers to grid_point
-  
-}
-## in alternativa si potrebbe usare questa definizione di knn distance come non-conformity measure
-k_s=0.95
-wrapper_knn=function(grid_point){
-  
-  x.obs.aug=c(grid_point,x.obs)
-  ncm=kNNdist(matrix(x.obs.aug),k_s*n)
-  sum((ncm[-1]>=ncm[1]))/(n+1)
-  
-} 
 
-p.value = pbsapply(tot_price.grid,wrapper_full)
-p.value = pbsapply(tot_price.grid,wrapper_knn)
 
-# Plot the p-values
-plot(x.new.grid, p.value, type='l', ylim=c(0,1))
-abline(h=c(0,1))
-abline(h=alpha, col='red', lty=2)
-points(x.obs, numeric(length(x.obs)), pch=3)
-
-# Compute the Prediction Interval
-PI.grid <- x.new.grid[which(p.value >= alpha)]
-PI <- c(min(PI.grid), max(PI.grid))
-PI
-abline(v = PI, col='red')
-points(PI.grid, numeric(length(PI.grid)), pch=16, col='red')
 
 ### APPLY CONFORMAL PREDICTION - Versione 2 - Exploit the model we have built in first phase
 # scaled_data <- data
@@ -277,3 +208,81 @@ points(PI.grid, numeric(length(PI.grid)), pch=16, col='red')
 # ## CONFORMAL PREDICTION REGION
 # c_preds=conformal.pred(cbind(x2,x1),y,c(median(x2),median(x1)),alpha=alpha,verbose=T,train.fun = train_gam ,predict.fun = predict_gam,num.grid.pts = 200)
 # c_preds
+
+########### APPLY CONFORMAL PREDICTION - Versione 1 - use the data and the model at our disposal
+X <- data.frame(PRICE = data$PRICE, CONSUMPTION = data$CONSUMPTION)
+#X <- scale(X)
+n_b = n <- dim(X)[1]
+n_grid <- 1000
+wrapper_multi_conf=function(test_point){
+  
+  newdata=rbind(test_point,X)
+  # L^2 norm
+  #depth_surface_vec=rowSums(t(t(newdata)-colMeans(newdata))^2) 
+  # mahalanobis
+  depth_surface_vec= mahalanobis(newdata,colMeans(newdata),cov = cov(newdata))
+  
+  sum(depth_surface_vec[-1]>=depth_surface_vec[1])/(n+1)
+}
+
+test_grid_price <- seq(min(X[,1]) - 0.05*diff(range(X[,1])), 
+                   max(X[,1]) + 0.05*diff(range(X[,1])), 
+                   length = n_grid)
+test_grid_cons <- seq(min(X[,2]) - 0.05*diff(range(X[,2])), 
+                   max(X[,2]) + 0.05*diff(range(X[,2])), 
+                   length = n_grid)
+xy_surface=expand.grid(test_grid_price,test_grid_cons)
+names(xy_surface) <- c("PRICE", "CONSUMPTION")
+
+p.value=pbapply(xy_surface,1,wrapper_multi_conf)
+
+data_plot=cbind(p.value,xy_surface)
+alpha <- 0.1
+p_set=xy_surface[p.value>alpha,]
+poly_points=p_set[chull(p_set),]
+## Conformal prediction region per prezzo e consumption (non so a cosa possa servire ma potrebbe tornarci utile)
+ggplot() + 
+  geom_tile(data=data_plot, aes(PRICE, CONSUMPTION, fill= p.value)) +
+  geom_point(data=data.frame(X), aes(PRICE, CONSUMPTION)) + 
+  geom_polygon(data=poly_points,aes(PRICE,CONSUMPTION),color='red',size=1,alpha=alpha)
+
+### CALCOLIAMO IL CONFORMAL PREDICTION REGION PER IL PREZZO completo DI UNA AUMOBILE 
+### TOLGO GLI OUTLIER: LE OSSERVAZIONI FUORI DALLA REGIONE DI CONFORMAL PREDICTION 0.9
+out_price <- which(data$PRICE %in% boxplot(data$PRICE)$out)
+out_cons <- which(data$CONSUMPTION %in% boxplot(data$CONSUMPTION)$out)
+out_ind <- union(out_price, out_cons)
+
+datawo <- data[-out_ind,]
+tot_price <- datawo$PRICE + datawo$CONSUMPTION*km_life*lcoc
+n_grid <- 1000
+tot_price_grid <- seq(min(tot_price), max(tot_price),length = n_grid)
+
+pval_fun=numeric(n_grid)
+
+wrapper_knn=function(grid_point){
+  aug_y=c(grid_point,tot_price)
+  ncm=kNNdist(matrix(aug_y),100)
+  sum((ncm[-1]>=ncm[1]))/(n_b+1)
+} 
+wrapper_full_median=function(grid_point){
+  x.obs.aug=c(grid_point,tot_price)
+  mu=median(x.obs.aug)     # WHY ISN'T IT REMOVING THE ith OBSERVATION?
+  ncm=abs(mu - x.obs.aug)  
+  sum((ncm[-1]>=ncm[1]))/(n+1)  # first obs refers to grid_point
+}
+pval_fun = pbsapply(tot_price_grid,wrapper_knn)
+pval_fun = pbsapply(tot_price_grid,wrapper_full_median)
+# Plot the p-values
+plot(tot_price_grid, pval_fun, type='l', ylim=c(0,1))
+abline(h=c(0,1))
+abline(h=alpha, col='red', lty=2)
+points(tot_price, numeric(length(tot_price)), pch=3)
+
+# Compute the Prediction Interval
+alpha <- 0.1
+PI.grid <- tot_price_grid[which(pval_fun >= alpha)]
+PI <- c(min(PI.grid), max(PI.grid))
+PI
+abline(v = PI, col='red')
+points(PI.grid, numeric(length(PI.grid)), pch=16, col='red')
+

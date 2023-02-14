@@ -60,42 +60,6 @@ data.e <- daisy(data,metric = "gower")
 data.em <- hclust(data.e, method = "mcquitty")
 clustering.m2 <- cutree(data.em,k=2)
 
-########### APPLY CONFORMAL PREDICTION - Versione 1 - use the data and the model at our disposal
-X <- data.frame(PRICE = data$PRICE, CONSUMPTION = data$CONSUMPTION)
-#X <- scale(X)
-n <- dim(X)[1]
-wrapper_multi_conf=function(test_point){
-  
-  newdata=rbind(test_point,X)
-  # L^2 norm
-  #depth_surface_vec=rowSums(t(t(newdata)-colMeans(newdata))^2) 
-  # mahalanobis
-  depth_surface_vec= mahalanobis(newdata,colMeans(newdata),cov = cov(newdata))
-  
-  sum(depth_surface_vec[-1]>=depth_surface_vec[1])/(n+1)
-}
-
-test_grid_x <- seq(min(X[,1]) - 0.05*diff(range(X[,1])), 
-                   max(X[,1]) + 0.05*diff(range(X[,1])), 
-                   length = 400)
-test_grid_y <- seq(min(X[,2]) - 0.05*diff(range(X[,2])), 
-                   max(X[,2]) + 0.05*diff(range(X[,2])), 
-                   length = 400)
-xy_surface=expand.grid(test_grid_x,test_grid_y)
-
-p.value=pbapply(xy_surface,1,wrapper_multi_conf)
-
-data_plot=cbind(p.value,xy_surface)
-alpha <- 0.1
-p_set=xy_surface[p.value>alpha,]
-poly_points=p_set[chull(p_set),]
-## Conformal prediction region per prezzo e consumption (non so a cosa possa servire ma potrebbe tornarci utile)
-ggplot() + 
-  geom_tile(data=data_plot, aes(Var1, Var2, fill= p.value)) +
-  geom_point(data=data.frame(X), aes(PRICE, CONSUMPTION)) + 
-  geom_polygon(data=poly_points,aes(Var1,Var2),color='red',size=1,alpha=alpha) 
- 
-
 ### Strategia: a partire da due caratteristiche fisica (come altezza e lunghezza, trazione e distinzione Van/no van)
 # proviamo a costruire intervalli di conformal prediction per il prezzo totale dell'automobile
 
@@ -332,3 +296,38 @@ abline(v = PI, col='red')
 # ## CONFORMAL PREDICTION REGION
 # c_preds=conformal.pred(cbind(x2,x1),y,c(median(x2),median(x1)),alpha=alpha,verbose=T,train.fun = train_gam ,predict.fun = predict_gam,num.grid.pts = 200)
 # c_preds
+
+
+X <- data.frame(PRICE = data$PRICE, CONSUMPTION = data$CONSUMPTION)
+#X <- scale(X)
+n <- dim(X)[1]
+wrapper_multi_conf=function(test_point){
+  
+  newdata=rbind(test_point,X)
+  # L^2 norm
+  #depth_surface_vec=rowSums(t(t(newdata)-colMeans(newdata))^2) 
+  # mahalanobis
+  depth_surface_vec= mahalanobis(newdata,colMeans(newdata),cov = cov(newdata))
+  
+  sum(depth_surface_vec[-1]>=depth_surface_vec[1])/(n+1)
+}
+
+test_grid_x <- seq(min(X[,1]) - 0.05*diff(range(X[,1])), 
+                   max(X[,1]) + 0.05*diff(range(X[,1])), 
+                   length = 400)
+test_grid_y <- seq(min(X[,2]) - 0.05*diff(range(X[,2])), 
+                   max(X[,2]) + 0.05*diff(range(X[,2])), 
+                   length = 400)
+xy_surface=expand.grid(test_grid_x,test_grid_y)
+
+p.value=pbapply(xy_surface,1,wrapper_multi_conf)
+
+data_plot=cbind(p.value,xy_surface)
+alpha <- 0.1
+p_set=xy_surface[p.value>alpha,]
+poly_points=p_set[chull(p_set),]
+## Conformal prediction region per prezzo e consumption (non so a cosa possa servire ma potrebbe tornarci utile)
+ggplot() + 
+  geom_tile(data=data_plot, aes(Var1, Var2, fill= p.value)) +
+  geom_point(data=data.frame(X), aes(PRICE, CONSUMPTION)) + 
+  geom_polygon(data=poly_points,aes(Var1,Var2),color='red',size=1,alpha=alpha) 
