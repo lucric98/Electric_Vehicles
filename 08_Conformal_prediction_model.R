@@ -12,6 +12,7 @@ library(mgcv)
 library(DepthProc)
 library(aplpack)
 library(mgcv)
+library(progress)
 
 path <- "/Users/luca/Library/CloudStorage/OneDrive-PolitecnicodiMilano/Nonparam Project/DATASET/evdatawithprices.csv"
 Vehicles <- read.csv(path,sep = ";")
@@ -119,15 +120,20 @@ predict_gam=function(obj, new_x){
 
 dati <- data.frame(PRICE = data$PRICE, CONSUMPTION = data$CONSUMPTION, LENGTH = data$LENGTH, HEIGHT = data$HEIGHT)
 n <- dim(dati)[1]
-B <- 1000
+B <- 500
 x0 <- c(median(dati$LENGTH), median(dati$HEIGHT))
+new_data <- data.frame(LENGTH = x0[1], HEIGHT = x0[2])
 alpha <- 0.1
 
-T.price.pred <- predict(PRICE_model, list = c(LENGTH = x0[1], HEIGHT = x0[2]))
+T.price.pred <- predict(PRICE_model,new_data)
 T.price.boot <- numeric(B)
 
-T.cons.pred <- predict(CONSUMPTION_model, list = c(LENGTH = x0[1], HEIGHT = x0[2]))
+T.cons.pred <- predict(CONSUMPTION_model, new_data)
 T.cons.boot <- numeric(B)
+
+pb <- progress_bar$new(
+  format = "  processing [:bar] :percent eta: :eta",
+  total = B, clear = FALSE)
 
 for(i in 1:B){
   ind.boot <- sample(1:n, replace = TRUE)
@@ -152,6 +158,7 @@ for(i in 1:B){
                          predict.fun = predict_gam)
   
   T.cons.boot[i] <- cons_preds$pred
+  pb$tick()
 }
 
 ## PRICE
@@ -168,3 +175,4 @@ names(CI.RP_cons)=c('lwr','lvl','upr')
 CI.RP_cons
 
 total_price <- CI.RP_price + CI.RP_cons*km_life*lcoc
+total_price
