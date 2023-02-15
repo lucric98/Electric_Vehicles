@@ -84,6 +84,16 @@ df <- cbind(Vehicles$Height,Vehicles$Length)
 bagplot(df, main = "Boxplot (Length vs Height)", ylab = "Length", xlab = "Height")
 depthContour(df,depth_params = list(method='Tukey'))
 
+#bagplot
+df <- cbind(data$RANGE,data$LENGTH)
+bagplot(df, ylab = "Range", xlab = "Length")
+depthContour(df,depth_params = list(method='Tukey'))
+
+#bagplot
+df <- cbind(data$CONSUMPTION,data$POWER)
+bagplot(df, ylab = "Consumption", xlab = "Power")
+depthContour(df,depth_params = list(method='Tukey'))
+
 #######################################################################################
 
 data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = Vehicles$Length, HEIGHT = Vehicles$Height, PAYLOAD = Vehicles$Max..Payload, CARGO_VOL = Vehicles$Cargo.Volume,
