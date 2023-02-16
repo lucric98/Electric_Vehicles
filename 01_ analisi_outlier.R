@@ -245,6 +245,7 @@ data <- as.data.frame(cbind(ACC = Vehicles$Acceleration.0...100.km.h, LENGTH = V
                            CHARGE_SPEED = Vehicles$Charge.Speed, BATTERY_CAPACITY = Vehicles$Battery.Capacity, FASTCHARGE_SPEED = Vehicles$Fastcharge.Speed,
                            PRICE = Vehicles$Price, CONSUMPTION = Vehicles$Consumption, 
                            POWER = Vehicles$Total.Power))
+
 pairs(data)
 library(corrplot)
 x11(width=10,height=10)
@@ -257,7 +258,7 @@ bagplot.pairs(data)
 Vehicles <- Vehicles %>% mutate(factors) 
 #riaggiungo le variabili categoriche
 data <- data %>% mutate(factors)
-
+data <- na.omit(data)
 library(GGally)
 ggpairs(data,
         columns = 1:12,

@@ -100,8 +100,8 @@ out_ind <- union(out_price, out_cons)
 ## WALLBOX USER WITH PV: 0.285, 0.323, 0.360
 ## COMMERCIAL USER: 0.345, 0.383, 0.422
 ## SOCKET USER: 0.182, 0.228, 0.273	
-km_life <- 12*20000
-lcoc <- 0.330/1000
+km_life <- 15*16000
+lcoc <- 0.375/1000
 
 datawo <- data[-out_ind,]
 tot_price <- datawo$PRICE + datawo$CONSUMPTION*km_life*lcoc

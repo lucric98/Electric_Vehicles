@@ -99,7 +99,7 @@ summary(CONSUMPTION_model)
 ## SOCKET USER: 0.182, 0.228, 0.273	
 
 ## queste variabili vanno settate facendo considerando diverse situazioni!
-km_life <- 12*20000
+km_life <- 15*16000
 lcoc <- 0.323/1000
 new_data <- data.frame(HEIGHT = 1500, LENGTH = 4500)
 
