@@ -13,7 +13,7 @@ library(DepthProc)
 library(aplpack)
 library(mgcv)
 library(progress)
-
+library(conformalInference)
 path <- "/Users/luca/Library/CloudStorage/OneDrive-PolitecnicodiMilano/Nonparam Project/DATASET/evdatawithprices.csv"
 Vehicles <- read.csv(path,sep = ";")
 
@@ -101,7 +101,8 @@ summary(CONSUMPTION_model)
 ## queste variabili vanno settate facendo considerando diverse situazioni!
 km_life <- 15*16000
 lcoc <- 0.323/1000
-new_data <- data.frame(HEIGHT = 1500, LENGTH = 4500)
+median <- DepthProc::depthMedian(cbind(data$HEIGHT,data$LENGTH),depth_params = list(method='Tukey'))
+new_data <- data.frame(HEIGHT = median[1], LENGTH = median[2])
 
 # tot_price.grid <- data$PRICE + data$CONSUMPTION*km_life*lcoc
 
@@ -125,11 +126,28 @@ x0 <- c(median(dati$LENGTH), median(dati$HEIGHT))
 new_data <- data.frame(LENGTH = x0[1], HEIGHT = x0[2])
 alpha <- 0.1
 
-T.price.pred <- predict(PRICE_model,new_data)
+T.price.pred=conformal.pred(dati[,3:4],
+                           y = dati$PRICE,
+                           x0 = x0,
+                           alpha=alpha,
+                           verbose=F,
+                           train.fun = train_gam,
+                           predict.fun = predict_gam)
 T.price.boot <- numeric(B)
+T.price.boot.lo <- numeric(B)
+T.price.boot.up  <- numeric(B)
 
-T.cons.pred <- predict(CONSUMPTION_model, new_data)
+T.cons.pred=conformal.pred(dati[,3:4],
+                            y = dati$CONSUMPTION,
+                            x0 = x0,
+                            alpha=alpha,
+                            verbose=F,
+                            train.fun = train_gam,
+                            predict.fun = predict_gam)
+
 T.cons.boot <- numeric(B)
+T.cons.boot.lo <- numeric(B)
+T.cons.boot.up <- numeric(B)
 
 pb <- progress_bar$new(
   format = "  processing [:bar] :percent eta: :eta",
@@ -146,8 +164,9 @@ for(i in 1:B){
                             verbose=F,
                             train.fun = train_gam,
                             predict.fun = predict_gam)
-  
+  T.price.boot.lo[i] <- price_preds$lo
   T.price.boot[i] <- price_preds$pred
+  T.price.boot.up[i] <- price_preds$up
   
   cons_preds=conformal.pred(dati.boot[,3:4],
                          y = dati.boot$CONSUMPTION,
@@ -157,20 +176,54 @@ for(i in 1:B){
                          train.fun = train_gam,
                          predict.fun = predict_gam)
   
+  T.cons.boot.lo[i] <- cons_preds$lo
   T.cons.boot[i] <- cons_preds$pred
+  T.cons.boot.up[i] <- cons_preds$up
   pb$tick()
 }
-
+#### PREDICTION
 ## PRICE
 right.quantile <- quantile(T.price.boot, 1 - alpha/2)
 left.quantile  <- quantile(T.price.boot, alpha/2)
-CI.RP_price <- c(T.price.pred - (right.quantile - T.price.pred), T.price.pred, T.price.pred - (left.quantile - T.price.pred))
+CI.RP_price <- c(T.price.pred$pred - (right.quantile - T.price.pred$pred), T.price.pred$pred, T.price.pred$pred - (left.quantile - T.price.pred$pred))
 names(CI.RP_price)=c('lwr','lvl','upr')
 CI.RP_price
 ## CONSUMPTION
 right.quantile <- quantile(T.cons.boot, 1 - alpha/2)
 left.quantile  <- quantile(T.cons.boot, alpha/2)
-CI.RP_cons <- c(T.cons.pred - (right.quantile - T.cons.pred), T.cons.pred, T.cons.pred - (left.quantile - T.cons.pred))
+CI.RP_cons <- c(T.cons.pred$pred - (right.quantile - T.cons.pred$pred), T.cons.pred$pred, T.cons.pred$pred - (left.quantile - T.cons.pred$pred))
+names(CI.RP_cons)=c('lwr','lvl','upr')
+CI.RP_cons
+
+total_price <- CI.RP_price + CI.RP_cons*km_life*lcoc
+total_price
+
+#### LOWER CONFIDENCE INTERVAL
+right.quantile <- quantile(T.price.boot.lo, 1 - alpha/2)
+left.quantile  <- quantile(T.price.boot.lo, alpha/2)
+CI.RP_price <- c(T.price.pred$lo - (right.quantile - T.price.pred$lo), T.price.pred$lo, T.price.pred$lo - (left.quantile - T.price.pred$lo))
+names(CI.RP_price)=c('lwr','lvl','upr')
+CI.RP_price
+## CONSUMPTION
+right.quantile <- quantile(T.cons.boot.lo, 1 - alpha/2)
+left.quantile  <- quantile(T.cons.boot.lo, alpha/2)
+CI.RP_cons <- c(T.cons.pred$lo - (right.quantile - T.cons.pred$lo), T.cons.pred$lo, T.cons.pred$lo - (left.quantile - T.cons.pred$lo))
+names(CI.RP_cons)=c('lwr','lvl','upr')
+CI.RP_cons
+
+total_price <- CI.RP_price + CI.RP_cons*km_life*lcoc
+total_price
+
+#### UPPER CONFIDENCE INTERVAL
+right.quantile <- quantile(T.price.boot.up, 1 - alpha/2)
+left.quantile  <- quantile(T.price.boot.up, alpha/2)
+CI.RP_price <- c(T.price.pred$up - (right.quantile - T.price.pred$up), T.price.pred$up, T.price.pred$up - (left.quantile - T.price.pred$up))
+names(CI.RP_price)=c('lwr','lvl','upr')
+CI.RP_price
+## CONSUMPTION
+right.quantile <- quantile(T.cons.boot.up, 1 - alpha/2)
+left.quantile  <- quantile(T.cons.boot.up, alpha/2)
+CI.RP_cons <- c(T.cons.pred$up - (right.quantile - T.cons.pred$up), T.cons.pred$up, T.cons.pred$up - (left.quantile - T.cons.pred$up))
 names(CI.RP_cons)=c('lwr','lvl','upr')
 CI.RP_cons
 
